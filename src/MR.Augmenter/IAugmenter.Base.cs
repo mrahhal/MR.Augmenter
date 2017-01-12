@@ -82,7 +82,25 @@ namespace MR.Augmenter
 
 				if (!typeConfigurations.Any())
 				{
-					return null;
+					// Check if there are complex members anyway (as in the case of anon objects).
+					var properties = type.GetTypeInfo().DeclaredProperties;
+					foreach (var p in properties)
+					{
+						if (!p.PropertyType.GetTypeInfo().IsPrimitive)
+						{
+							var nestedTypeConfiguration = Configuration.TypeConfigurations
+								.FirstOrDefault(c => c.Type == p.PropertyType);
+							if (nestedTypeConfiguration != null)
+							{
+								typeConfigurations.Add(nestedTypeConfiguration);
+							}
+						}
+					}
+
+					if (!typeConfigurations.Any())
+					{
+						return null;
+					}
 				}
 
 				return typeConfigurations;

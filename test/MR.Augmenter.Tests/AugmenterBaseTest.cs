@@ -77,6 +77,19 @@ namespace MR.Augmenter
 			_fixture.Contexts.First().State["key"].Should().Be(someValue);
 		}
 
+		[Fact]
+		public void Augment_ChecksComplexPropertiesAnyway()
+		{
+			var model = new
+			{
+				Inner = CreateModelC()
+			};
+
+			_fixture.Augment(model);
+
+			_fixture.Contexts.Should().HaveCount(1);
+		}
+
 		private TestModelC CreateModelC()
 		{
 			return new TestModelC();
