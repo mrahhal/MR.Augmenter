@@ -7,21 +7,12 @@ namespace MR.Augmenter
 {
 	public class AugmenterBaseTest : CommonTestHost
 	{
-		private AugmenterConfiguration _configuration;
-		private FakeAugmenterBase _fixture;
-
-		public AugmenterBaseTest()
-		{
-			_configuration = ConfigureCommon();
-			_fixture = new FakeAugmenterBase(_configuration);
-		}
-
 		[Fact]
 		public void Augment_AugmenterConfigurationNotBuild_BuildsIt()
 		{
 			var configration = new AugmenterConfiguration();
 
-			new FakeAugmenterBase(configration);
+			MocksHelper.AugmenterBase(configration);
 
 			configration.Built.Should().BeTrue();
 		}
@@ -29,9 +20,10 @@ namespace MR.Augmenter
 		[Fact]
 		public void Augment_Null_ReturnsNull()
 		{
+			var fixture = MocksHelper.AugmenterBase(new AugmenterConfiguration());
 			object model = null;
 
-			var result = _fixture.Augment(model);
+			var result = fixture.Augment(model);
 
 			result.Should().BeNull();
 		}
@@ -39,11 +31,12 @@ namespace MR.Augmenter
 		[Fact]
 		public void Augment_PicksUpBaseClasses()
 		{
-			var model = CreateModelC();
+			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
+			var model = new TestModelC();
 
-			_fixture.Augment(model);
+			fixture.Augment(model);
 
-			var context = _fixture.Contexts.First();
+			var context = fixture.Contexts.First();
 			context.TypeConfigurations.Should()
 				.HaveCount(3).And
 				.OnlyContain(tc => tc.Type.GetTypeInfo().IsAssignableFrom(typeof(TestModelC)));
@@ -52,11 +45,12 @@ namespace MR.Augmenter
 		[Fact]
 		public void Augment_TypeConfigurationsInCorrectOrder()
 		{
-			var model = CreateModelC();
+			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
+			var model = new TestModelC();
 
-			_fixture.Augment(model);
+			fixture.Augment(model);
 
-			var context = _fixture.Contexts.First();
+			var context = fixture.Contexts.First();
 			var configurations = context.TypeConfigurations;
 			configurations.ElementAt(0).Type.Should().Be(typeof(TestModelA));
 			configurations.ElementAt(1).Type.Should().Be(typeof(TestModelB));
@@ -66,33 +60,30 @@ namespace MR.Augmenter
 		[Fact]
 		public void Augment_State_FallsThrough()
 		{
-			var model = CreateModelC();
+			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
+			var model = new TestModelC();
 			var someValue = "bars";
 
-			_fixture.Augment(model, addState: state =>
+			fixture.Augment(model, addState: state =>
 			{
 				state.Add("key", someValue);
 			});
 
-			_fixture.Contexts.First().State["key"].Should().Be(someValue);
+			fixture.Contexts.First().State["key"].Should().Be(someValue);
 		}
 
 		[Fact]
 		public void Augment_ChecksComplexPropertiesAnyway()
 		{
+			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new
 			{
-				Inner = CreateModelC()
+				Inner = new TestModelC()
 			};
 
-			_fixture.Augment(model);
+			fixture.Augment(model);
 
-			_fixture.Contexts.Should().HaveCount(1);
-		}
-
-		private TestModelC CreateModelC()
-		{
-			return new TestModelC();
+			fixture.Contexts.Should().HaveCount(1);
 		}
 	}
 }

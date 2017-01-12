@@ -6,21 +6,15 @@ namespace MR.Augmenter
 {
 	public class JsonAugmenterTest : CommonTestHost
 	{
-		private AugmenterConfiguration _configuration;
-		private JsonAugmenter _fixture;
-
-		public JsonAugmenterTest()
-		{
-			_configuration = new AugmenterConfiguration();
-			_fixture = new JsonAugmenter(_configuration);
-		}
-
 		public class AugmentMethod : JsonAugmenterTest
 		{
+			private AugmenterConfiguration _configuration;
+			private JsonAugmenter _fixture;
+
 			public AugmentMethod()
 			{
 				_configuration = ConfigureCommon();
-				_fixture = new JsonAugmenter(_configuration);
+				_fixture = MocksHelper.JsonAugmenter(_configuration);
 			}
 
 			[Fact]
@@ -77,6 +71,9 @@ namespace MR.Augmenter
 
 			public class Nested : JsonAugmenterTest
 			{
+				private AugmenterConfiguration _configuration;
+				private JsonAugmenter _fixture;
+
 				public Nested()
 				{
 					_configuration = new AugmenterConfiguration();
@@ -93,7 +90,7 @@ namespace MR.Augmenter
 						c.ConfigureAdd("Foo", (_, __) => "44");
 					});
 
-					_fixture = new JsonAugmenter(_configuration);
+					_fixture = MocksHelper.JsonAugmenter(_configuration);
 				}
 
 				[Fact]
@@ -113,6 +110,15 @@ namespace MR.Augmenter
 
 			public class State : JsonAugmenterTest
 			{
+				private AugmenterConfiguration _configuration;
+				private JsonAugmenter _fixture;
+
+				public State()
+				{
+					_configuration = new AugmenterConfiguration();
+					_fixture = MocksHelper.JsonAugmenter(_configuration);
+				}
+
 				[Fact]
 				public void Globally()
 				{
@@ -126,7 +132,7 @@ namespace MR.Augmenter
 							return state["key"];
 						});
 					});
-					_fixture = new JsonAugmenter(_configuration);
+					_fixture = MocksHelper.JsonAugmenter(_configuration);
 
 					var result = _fixture.Augment(model, addState: state =>
 					{
@@ -169,7 +175,7 @@ namespace MR.Augmenter
 							return state["key"];
 						});
 					});
-					_fixture = new JsonAugmenter(_configuration);
+					_fixture = MocksHelper.JsonAugmenter(_configuration);
 
 					var result = _fixture.Augment(model, addState: state =>
 					{

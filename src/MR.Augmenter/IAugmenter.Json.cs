@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 using IState = System.Collections.Generic.IReadOnlyDictionary<string, object>;
 
 namespace MR.Augmenter
@@ -8,7 +9,8 @@ namespace MR.Augmenter
 	/// </summary>
 	public class JsonAugmenter : AugmenterBase
 	{
-		public JsonAugmenter(AugmenterConfiguration configuration)
+		public JsonAugmenter(
+			AugmenterConfiguration configuration)
 			: base(configuration)
 		{
 		}

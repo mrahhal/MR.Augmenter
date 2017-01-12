@@ -17,7 +17,8 @@ namespace MR.Augmenter
 		private IReadOnlyDictionary<string, object> _emptyDictionary =
 			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
 
-		public AugmenterBase(AugmenterConfiguration configuration)
+		public AugmenterBase(
+			AugmenterConfiguration configuration)
 		{
 			configuration.Build();
 			Configuration = configuration;

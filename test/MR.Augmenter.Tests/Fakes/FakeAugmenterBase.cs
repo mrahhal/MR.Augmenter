@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MR.Augmenter
 {
 	public class FakeAugmenterBase : AugmenterBase
 	{
 		public FakeAugmenterBase(
-				AugmenterConfiguration configuration)
-				: base(configuration)
+			AugmenterConfiguration configuration)
+			: base(configuration)
 		{
 		}
 
