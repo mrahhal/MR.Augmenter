@@ -18,13 +18,17 @@ namespace MR.Augmenter
 			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
 
 		public AugmenterBase(
-			AugmenterConfiguration configuration)
+			AugmenterConfiguration configuration,
+			IServiceProvider services)
 		{
 			configuration.Build();
 			Configuration = configuration;
+			Services = services;
 		}
 
 		public AugmenterConfiguration Configuration { get; }
+
+		public IServiceProvider Services { get; }
 
 		public virtual object Augment<T>(
 			T obj,

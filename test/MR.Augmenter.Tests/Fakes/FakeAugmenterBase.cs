@@ -6,8 +6,9 @@ namespace MR.Augmenter
 	public class FakeAugmenterBase : AugmenterBase
 	{
 		public FakeAugmenterBase(
-			AugmenterConfiguration configuration)
-			: base(configuration)
+			AugmenterConfiguration configuration,
+			IServiceProvider services)
+			: base(configuration, services)
 		{
 		}
 

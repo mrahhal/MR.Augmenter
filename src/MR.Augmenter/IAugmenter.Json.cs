@@ -10,8 +10,9 @@ namespace MR.Augmenter
 	public class JsonAugmenter : AugmenterBase
 	{
 		public JsonAugmenter(
-			AugmenterConfiguration configuration)
-			: base(configuration)
+			AugmenterConfiguration configuration,
+			IServiceProvider services)
+			: base(configuration, services)
 		{
 		}
 
