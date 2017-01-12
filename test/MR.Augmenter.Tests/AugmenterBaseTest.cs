@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using Xunit;
@@ -62,6 +61,20 @@ namespace MR.Augmenter
 			configurations.ElementAt(0).Type.Should().Be(typeof(TestModelA));
 			configurations.ElementAt(1).Type.Should().Be(typeof(TestModelB));
 			configurations.ElementAt(2).Type.Should().Be(typeof(TestModelC));
+		}
+
+		[Fact]
+		public void Augment_State_FallsThrough()
+		{
+			var model = CreateModelC();
+			var someValue = "bars";
+
+			_fixture.Augment(model, addState: state =>
+			{
+				state.Add("key", someValue);
+			});
+
+			_fixture.Contexts.First().State["key"].Should().Be(someValue);
 		}
 
 		private TestModelC CreateModelC()

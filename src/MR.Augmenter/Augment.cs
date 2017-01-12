@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MR.Augmenter
 {
@@ -9,7 +10,7 @@ namespace MR.Augmenter
 		{
 		}
 
-		public Augment(string name, AugmentKind kind, Func<object, object> valueFunc)
+		public Augment(string name, AugmentKind kind, Func<object, IReadOnlyDictionary<string, object>, object> valueFunc)
 		{
 			Name = name;
 			Kind = kind;
@@ -20,6 +21,6 @@ namespace MR.Augmenter
 
 		public AugmentKind Kind { get; }
 
-		public Func<object, object> ValueFunc { get; protected set; }
+		public Func<object, IReadOnlyDictionary<string, object>, object> ValueFunc { get; protected set; }
 	}
 }

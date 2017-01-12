@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 
@@ -13,6 +14,8 @@ namespace MR.Augmenter
 	{
 		private ConcurrentDictionary<Type, List<TypeConfiguration>> _cache
 			= new ConcurrentDictionary<Type, List<TypeConfiguration>>();
+		private IReadOnlyDictionary<string, object> _emptyDictionary =
+			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
 
 		public AugmenterBase(AugmenterConfiguration configuration)
 		{
@@ -22,7 +25,10 @@ namespace MR.Augmenter
 
 		public AugmenterConfiguration Configuration { get; }
 
-		public virtual object Augment<T>(T obj, Action<TypeConfiguration<T>> configure = null)
+		public virtual object Augment<T>(
+			T obj,
+			Action<TypeConfiguration<T>> configure = null,
+			Action<Dictionary<string, object>> addState = null)
 		{
 			if (obj == null)
 			{
@@ -49,8 +55,20 @@ namespace MR.Augmenter
 				typeConfigurations.Add(localTypeConfigration);
 			}
 
-			var context = new AugmentationContext(obj, typeConfigurations);
+			var state =
+				addState == null ?
+				_emptyDictionary :
+				CreateDictionaryAndAddState(addState);
+			var context = new AugmentationContext(obj, typeConfigurations, state);
 			return AugmentCore(context);
+		}
+
+		private IReadOnlyDictionary<string, object> CreateDictionaryAndAddState(
+			Action<Dictionary<string, object>> addState)
+		{
+			var dictionary = new Dictionary<string, object>();
+			addState(dictionary);
+			return new ReadOnlyDictionary<string, object>(dictionary);
 		}
 
 		private List<TypeConfiguration> ResolveTypeConfigurations(Type type)

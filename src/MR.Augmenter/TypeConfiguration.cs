@@ -26,21 +26,21 @@ namespace MR.Augmenter
 		{
 		}
 
-		public void ConfigureAdd(string name, Func<T, object> valueFunc)
+		public void ConfigureAdd(string name, Func<T, IReadOnlyDictionary<string, object>, object> valueFunc)
 		{
-			Augments.Add(new Augment(name, AugmentKind.Add, obj =>
+			Augments.Add(new Augment(name, AugmentKind.Add, (obj, state) =>
 			{
 				var concrete = (T)obj;
-				return valueFunc(concrete);
+				return valueFunc(concrete, state);
 			}));
 		}
 
-		public void ConfigureRemove(string name, Func<T, object> valueFunc = null)
+		public void ConfigureRemove(string name, Func<T, IReadOnlyDictionary<string, object>, object> valueFunc = null)
 		{
-			Augments.Add(new Augment(name, AugmentKind.Remove, obj =>
+			Augments.Add(new Augment(name, AugmentKind.Remove, (obj, state) =>
 			{
 				var concrete = (T)obj;
-				return valueFunc?.Invoke(concrete);
+				return valueFunc?.Invoke(concrete, state);
 			}));
 		}
 	}

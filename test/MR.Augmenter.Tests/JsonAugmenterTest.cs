@@ -9,6 +9,12 @@ namespace MR.Augmenter
 		private AugmenterConfiguration _configuration;
 		private JsonAugmenter _fixture;
 
+		public JsonAugmenterTest()
+		{
+			_configuration = new AugmenterConfiguration();
+			_fixture = new JsonAugmenter(_configuration);
+		}
+
 		public class AugmentMethod : JsonAugmenterTest
 		{
 			public AugmentMethod()
@@ -35,7 +41,7 @@ namespace MR.Augmenter
 
 				var result = _fixture.Augment(model, c =>
 				{
-					c.ConfigureAdd("Baz", _ => 2);
+					c.ConfigureAdd("Baz", (_, __) => 2);
 				}) as JObject;
 
 				result["Bar"].Value<string>().Should().Be($"({model.Id})");
@@ -50,7 +56,7 @@ namespace MR.Augmenter
 
 				var result = _fixture.Augment(model, c =>
 				{
-					c.ConfigureAdd("Some", _ => AugmentationValue.Ignore);
+					c.ConfigureAdd("Some", (_, __) => AugmentationValue.Ignore);
 				}) as JObject;
 
 				result["Some"].Should().BeNull();
@@ -63,7 +69,7 @@ namespace MR.Augmenter
 
 				var result = _fixture.Augment(model, c =>
 				{
-					c.ConfigureRemove(nameof(TestModel1.Foo), _ => AugmentationValue.Ignore);
+					c.ConfigureRemove(nameof(TestModel1.Foo), (_, __) => AugmentationValue.Ignore);
 				}) as JObject;
 
 				result.Value<string>(nameof(TestModel1.Foo)).Should().Be("foo");
@@ -76,15 +82,15 @@ namespace MR.Augmenter
 					_configuration = new AugmenterConfiguration();
 					_configuration.Configure<TestModelWithNested>(c =>
 					{
-						c.ConfigureAdd("Foo", _ => "42");
+						c.ConfigureAdd("Foo", (_, __) => "42");
 					});
 					_configuration.Configure<TestModelNested>(c =>
 					{
-						c.ConfigureAdd("Foo", _ => "43");
+						c.ConfigureAdd("Foo", (_, __) => "43");
 					});
 					_configuration.Configure<TestModelNestedNested>(c =>
 					{
-						c.ConfigureAdd("Foo", _ => "44");
+						c.ConfigureAdd("Foo", (_, __) => "44");
 					});
 
 					_fixture = new JsonAugmenter(_configuration);
@@ -98,10 +104,102 @@ namespace MR.Augmenter
 					var result = _fixture.Augment(model) as JObject;
 
 					result.Value<string>("Foo").Should().Be("42");
-					var nested = result["Nested"].Value<JObject>();
+					var nested = result.Value<JObject>("Nested");
 					nested.Value<string>("Foo").Should().Be("43");
-					var nestedNested = nested["Nested"].Value<JObject>();
+					var nestedNested = nested.Value<JObject>("Nested");
 					nestedNested.Value<string>("Foo").Should().Be("44");
+				}
+			}
+
+			public class State : JsonAugmenterTest
+			{
+				[Fact]
+				public void Globally()
+				{
+					var model = new TestModel1();
+
+					_configuration = new AugmenterConfiguration();
+					_configuration.Configure<TestModel1>(c =>
+					{
+						c.ConfigureAdd("Bar", (x, state) =>
+						{
+							return state["key"];
+						});
+					});
+					_fixture = new JsonAugmenter(_configuration);
+
+					var result = _fixture.Augment(model, addState: state =>
+					{
+						state.Add("key", "bar");
+					}) as JObject;
+
+					result.Value<string>("Bar").Should().Be("bar");
+				}
+
+				[Fact]
+				public void Locally()
+				{
+					var model = new TestModel1();
+
+					var result = _fixture.Augment(model, c =>
+					{
+						c.ConfigureAdd("Bar", (x, state) =>
+						{
+							return state["key"];
+						});
+					}, state =>
+					{
+						state.Add("key", "bar");
+					}) as JObject;
+
+					result.Value<string>("Bar").Should().Be("bar");
+				}
+
+				[Fact]
+				public void Nested()
+				{
+					var model = new TestModelWithNested();
+
+					_configuration = new AugmenterConfiguration();
+					_configuration.Configure<TestModelWithNested>(null);
+					_configuration.Configure<TestModelNested>(c =>
+					{
+						c.ConfigureAdd("Foo", (x, state) =>
+						{
+							return state["key"];
+						});
+					});
+					_fixture = new JsonAugmenter(_configuration);
+
+					var result = _fixture.Augment(model, addState: state =>
+					{
+						state.Add("key", "foo");
+					}) as JObject;
+
+					result.Value<JObject>("Nested").Value<string>("Foo").Should().Be("foo");
+				}
+
+				[Fact]
+				public void WithIgnore()
+				{
+					var model = new TestModel1();
+
+					var result = _fixture.Augment(model, config =>
+					{
+						config.ConfigureAdd("Bar", (x, state) =>
+						{
+							if ((bool)state["key"])
+							{
+								return "YES";
+							}
+							return AugmentationValue.Ignore;
+						});
+					}, state =>
+					{
+						state.Add("key", false);
+					}) as JObject;
+
+					result["Bar"].Should().BeNull();
 				}
 			}
 		}

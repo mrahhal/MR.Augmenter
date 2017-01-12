@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using IState = System.Collections.Generic.IReadOnlyDictionary<string, object>;
 
 namespace MR.Augmenter
 {
@@ -23,55 +24,55 @@ namespace MR.Augmenter
 
 			foreach (var typeConfiguration in context.TypeConfigurations)
 			{
-				AugmentObject(obj, jobj, typeConfiguration);
+				AugmentObject(obj, jobj, typeConfiguration, context.State);
 			}
 
 			return jobj;
 		}
 
-		private void AugmentObject(object obj, JObject jobj, TypeConfiguration typeConfiguration)
+		private void AugmentObject(object obj, JObject jobj, TypeConfiguration typeConfiguration, IState state)
 		{
 			var augments = typeConfiguration.Augments;
 			foreach (var augment in augments)
 			{
-				ApplyAugment(obj, jobj, augment);
+				ApplyAugment(obj, jobj, augment, state);
 			}
 
 			foreach (var nested in typeConfiguration.NestedTypeConfigurations)
 			{
 				var nestedObject = nested.Key.GetValue(obj);
-				AugmentObject(nestedObject, (JObject)jobj[nested.Key.Name], nested.Value);
+				AugmentObject(nestedObject, (JObject)jobj[nested.Key.Name], nested.Value, state);
 			}
 		}
 
-		private void ApplyAugment(object obj, JObject jobj, Augment augment)
+		private void ApplyAugment(object obj, JObject jobj, Augment augment, IState state)
 		{
 			switch (augment.Kind)
 			{
 				case AugmentKind.Add:
-					ApplyAddAugment(obj, jobj, augment);
+					ApplyAddAugment(obj, jobj, augment, state);
 					break;
 
 				case AugmentKind.Remove:
-					ApplyRemoveAugment(obj, jobj, augment);
+					ApplyRemoveAugment(obj, jobj, augment, state);
 					break;
 			}
 		}
 
-		private void ApplyAddAugment(object obj, JObject jobj, Augment augment)
+		private void ApplyAddAugment(object obj, JObject jobj, Augment augment, IState state)
 		{
-			var value = augment.ValueFunc(obj);
+			var value = augment.ValueFunc(obj, state);
 			if (ShouldIgnoreAugment(value))
 			{
 				return;
 			}
 
-			jobj.Add(augment.Name, JToken.FromObject(augment.ValueFunc(obj)));
+			jobj.Add(augment.Name, JToken.FromObject(augment.ValueFunc(obj, state)));
 		}
 
-		private void ApplyRemoveAugment(object obj, JObject jobj, Augment augment)
+		private void ApplyRemoveAugment(object obj, JObject jobj, Augment augment, IState state)
 		{
-			var value = augment.ValueFunc?.Invoke(obj);
+			var value = augment.ValueFunc?.Invoke(obj, state);
 			if (ShouldIgnoreAugment(value))
 			{
 				return;

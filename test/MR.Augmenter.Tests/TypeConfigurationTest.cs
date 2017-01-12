@@ -11,7 +11,7 @@ namespace MR.Augmenter
 		{
 			var tc = new TypeConfiguration<TestModel1>();
 
-			tc.ConfigureAdd("Foo", b => $"({b.Id})");
+			tc.ConfigureAdd("Foo", (x, _) => $"({x.Id})");
 
 			tc.Augments.First().Invoking(o =>
 			{

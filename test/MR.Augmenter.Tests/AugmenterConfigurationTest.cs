@@ -13,7 +13,7 @@ namespace MR.Augmenter
 
 			configuration.Configure<TestModel1>(c =>
 			{
-				c.ConfigureAdd("Foo", b => $"({b.Id})");
+				c.ConfigureAdd("Foo", (x, _) => $"({x.Id})");
 			});
 
 			configuration.TypeConfigurations.Should()

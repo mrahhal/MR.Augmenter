@@ -11,7 +11,7 @@ namespace MR.Augmenter
 
 		public bool Built { get; private set; }
 
-		public void Configure<T>(Action<TypeConfiguration<T>> configuration)
+		public void Configure<T>(Action<TypeConfiguration<T>> configure)
 		{
 			var type = typeof(T);
 			var typeConfiguration = TypeConfigurations.FirstOrDefault(c => c.Type == type) as TypeConfiguration<T>;
@@ -21,7 +21,7 @@ namespace MR.Augmenter
 				TypeConfigurations.Add(typeConfiguration);
 			}
 
-			configuration(typeConfiguration);
+			configure?.Invoke(typeConfiguration);
 		}
 
 		public void Build()
@@ -43,7 +43,7 @@ namespace MR.Augmenter
 				var properties = type.GetTypeInfo().DeclaredProperties;
 				foreach (var p in properties)
 				{
-					if (!p.PropertyType.GetTypeInfo().IsPrimitive && !typeConfiguration.Augments.Any(a => a.Name == p.Name))
+					if (!p.PropertyType.GetTypeInfo().IsPrimitive)
 					{
 						var nestedTypeConfiguration = TypeConfigurations.FirstOrDefault(c => c.Type == p.PropertyType);
 						if (nestedTypeConfiguration != null)
