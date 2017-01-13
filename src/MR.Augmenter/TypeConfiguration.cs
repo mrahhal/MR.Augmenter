@@ -15,6 +15,9 @@ namespace MR.Augmenter
 
 		internal List<Augment> Augments { get; } = new List<Augment>();
 
+		public List<TypeConfiguration> BaseTypeConfigurations { get; }
+			= new List<TypeConfiguration>();
+
 		public Dictionary<PropertyInfo, TypeConfiguration> NestedTypeConfigurations { get; }
 			= new Dictionary<PropertyInfo, TypeConfiguration>();
 	}

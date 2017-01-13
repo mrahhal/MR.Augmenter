@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,35 +30,6 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public async Task Augment_PicksUpBaseClasses()
-		{
-			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
-			var model = new TestModelC();
-
-			await fixture.AugmentAsync(model);
-
-			var context = fixture.Contexts.First();
-			context.TypeConfigurations.Should()
-				.HaveCount(3).And
-				.OnlyContain(tc => tc.Type.GetTypeInfo().IsAssignableFrom(typeof(TestModelC)));
-		}
-
-		[Fact]
-		public async Task Augment_TypeConfigurationsInCorrectOrder()
-		{
-			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
-			var model = new TestModelC();
-
-			await fixture.AugmentAsync(model);
-
-			var context = fixture.Contexts.First();
-			var configurations = context.TypeConfigurations;
-			configurations.ElementAt(0).Type.Should().Be(typeof(TestModelA));
-			configurations.ElementAt(1).Type.Should().Be(typeof(TestModelB));
-			configurations.ElementAt(2).Type.Should().Be(typeof(TestModelC));
-		}
-
-		[Fact]
 		public async Task Augment_State_FallsThrough()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
@@ -75,7 +45,7 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public async Task Augment_ChecksComplexPropertiesAnywayForAnonymousObjects()
+		public async Task Augment_ChecksComplexPropertiesAnywayForUnknownObjects()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new
@@ -89,7 +59,7 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public async Task Augment_CorrectlySetsTypeConfigurationsForAnonymousObjects()
+		public async Task Augment_CorrectlySetsTypeConfigurationsForUnknownObjects()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new
@@ -100,11 +70,12 @@ namespace MR.Augmenter
 			await fixture.AugmentAsync(model);
 
 			var context = fixture.Contexts.First();
-			var tc = context.TypeConfigurations.First();
+			var tc = context.TypeConfiguration;
 			tc.Type.Should().Be(model.GetType());
 			var nested = tc.NestedTypeConfigurations.Should().HaveCount(1).And.Subject.First();
 			nested.Key.Name.Should().Be(nameof(model.Inner));
 			nested.Value.Type.Should().Be(typeof(TestModelC));
+			nested.Value.BaseTypeConfigurations.Should().NotBeEmpty();
 		}
 
 		[Fact]

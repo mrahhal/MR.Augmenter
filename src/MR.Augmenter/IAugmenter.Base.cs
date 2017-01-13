@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MR.Augmenter.Internal;
 
 namespace MR.Augmenter
 {
@@ -13,8 +14,8 @@ namespace MR.Augmenter
 	/// </summary>
 	public abstract class AugmenterBase : IAugmenter
 	{
-		private ConcurrentDictionary<Type, List<TypeConfiguration>> _cache
-			= new ConcurrentDictionary<Type, List<TypeConfiguration>>();
+		private ConcurrentDictionary<Type, TypeConfiguration> _cache
+			= new ConcurrentDictionary<Type, TypeConfiguration>();
 
 		private IReadOnlyDictionary<string, object> _emptyDictionary =
 			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
@@ -43,27 +44,23 @@ namespace MR.Augmenter
 			}
 
 			var type = obj.GetType();
-			var typeConfigurations = ResolveTypeConfigurations(type);
+			var typeConfiguration = ResolveTypeConfiguration(type);
 
-			if (typeConfigurations == null && configure == null)
+			if (typeConfiguration == null && configure == null)
 			{
 				return obj;
 			}
 
-			typeConfigurations =
-				typeConfigurations == null ?
-				new List<TypeConfiguration>() :
-				new List<TypeConfiguration>(typeConfigurations);
+			var state = await CreateDictionaryAndAddStateAsync(addState);
+			var context = new AugmentationContext(obj, typeConfiguration, state);
 
 			if (configure != null)
 			{
-				var localTypeConfigration = new TypeConfiguration<T>();
-				configure(localTypeConfigration);
-				typeConfigurations.Add(localTypeConfigration);
+				var ephemeralTypeConfigration = new TypeConfiguration<T>();
+				configure(ephemeralTypeConfigration);
+				context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
 			}
 
-			var state = await CreateDictionaryAndAddStateAsync(addState);
-			var context = new AugmentationContext(obj, typeConfigurations, state);
 			return AugmentCore(context);
 		}
 
@@ -86,63 +83,48 @@ namespace MR.Augmenter
 			return new ReadOnlyDictionary<string, object>(dictionary);
 		}
 
-		private List<TypeConfiguration> ResolveTypeConfigurations(Type type)
+		private TypeConfiguration ResolveTypeConfiguration(Type type)
 		{
 			return _cache.GetOrAdd(type, t =>
 			{
-				var types = IncludeBaseTypes(type);
-				var typeConfigurations = Configuration.TypeConfigurations
-					.Where(c => types.Contains(c.Type))
-					.ToList();
+				var typeConfiguration = Configuration.TypeConfigurations
+					.Where(c => type == c.Type)
+					.FirstOrDefault();
 
-				if (!typeConfigurations.Any())
+				if (typeConfiguration == null)
 				{
+					var baseTypes = ReflectionHelper.IncludeBaseTypes(type);
+					foreach (var baseType in baseTypes)
+					{
+						var tc = Configuration.TypeConfigurations.Where(t2 => t2.Type == baseType).FirstOrDefault();
+						if (tc != null)
+						{
+							typeConfiguration = typeConfiguration ?? new TypeConfiguration(type);
+							typeConfiguration.BaseTypeConfigurations.Add(tc);
+						}
+					}
+
 					// Check if there are complex members anyway (as in the case of anon objects).
 					var properties = type.GetTypeInfo().DeclaredProperties;
 					foreach (var p in properties)
 					{
-						if (!p.PropertyType.GetTypeInfo().IsPrimitive)
+						if (!ReflectionHelper.IsPrimitive(p.PropertyType))
 						{
+							var nestedType = p.PropertyType;
 							var nestedTypeConfiguration = Configuration.TypeConfigurations
-								.FirstOrDefault(c => c.Type == p.PropertyType);
+								.Where(c => nestedType == c.Type)
+								.FirstOrDefault();
 							if (nestedTypeConfiguration != null)
 							{
-								var tc = new TypeConfiguration(type);
-								tc.NestedTypeConfigurations.Add(p, nestedTypeConfiguration);
-								typeConfigurations.Add(tc);
+								typeConfiguration = typeConfiguration ?? new TypeConfiguration(type);
+								typeConfiguration.NestedTypeConfigurations.Add(p, nestedTypeConfiguration);
 							}
 						}
 					}
-
-					if (!typeConfigurations.Any())
-					{
-						return null;
-					}
 				}
 
-				return typeConfigurations;
+				return typeConfiguration;
 			});
-		}
-
-		private List<Type> IncludeBaseTypes(Type type)
-		{
-			var list = new List<Type>();
-			list.Add(type);
-
-			TypeInfo pivot = type.GetTypeInfo();
-			while (true)
-			{
-				pivot = pivot.BaseType.GetTypeInfo();
-				if (pivot.AsType() == typeof(object))
-				{
-					break;
-				}
-
-				list.Add(pivot.AsType());
-			}
-
-			list.Reverse();
-			return list;
 		}
 
 		protected abstract object AugmentCore(AugmentationContext context);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using IState = System.Collections.Generic.IReadOnlyDictionary<string, object>;
 
@@ -25,7 +26,7 @@ namespace MR.Augmenter
 				jobj = JObject.FromObject(context.Object);
 			}
 
-			foreach (var typeConfiguration in context.TypeConfigurations)
+			foreach (var typeConfiguration in BuildList(context.TypeConfiguration, context.EphemeralTypeConfiguration))
 			{
 				AugmentObject(obj, jobj, typeConfiguration, context.State);
 			}
@@ -35,8 +36,7 @@ namespace MR.Augmenter
 
 		private void AugmentObject(object obj, JObject jobj, TypeConfiguration typeConfiguration, IState state)
 		{
-			var augments = typeConfiguration.Augments;
-			foreach (var augment in augments)
+			foreach (var augment in typeConfiguration.Augments)
 			{
 				ApplyAugment(obj, jobj, augment, state);
 			}
@@ -44,8 +44,34 @@ namespace MR.Augmenter
 			foreach (var nested in typeConfiguration.NestedTypeConfigurations)
 			{
 				var nestedObject = nested.Key.GetValue(obj);
-				AugmentObject(nestedObject, (JObject)jobj[nested.Key.Name], nested.Value, state);
+				foreach (var item in BuildList(nested.Value, null))
+				{
+					AugmentObject(nestedObject, (JObject)jobj[nested.Key.Name], item, state);
+				}
 			}
+		}
+
+		private List<TypeConfiguration> BuildList(TypeConfiguration typeConfiguration, TypeConfiguration ephemeral)
+		{
+			var list = new List<TypeConfiguration>();
+
+			if (typeConfiguration != null)
+				foreach (var tc in typeConfiguration.BaseTypeConfigurations)
+				{
+					list.Add(tc);
+				}
+
+			if (typeConfiguration != null)
+			{
+				list.Add(typeConfiguration);
+			}
+
+			if (ephemeral != null)
+			{
+				list.Add(ephemeral);
+			}
+
+			return list;
 		}
 
 		private void ApplyAugment(object obj, JObject jobj, Augment augment, IState state)

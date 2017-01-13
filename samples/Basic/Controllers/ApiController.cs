@@ -1,5 +1,4 @@
-﻿using System;
-using Basic.Models;
+﻿using Basic.Models;
 using Microsoft.AspNetCore.Mvc;
 using MR.Augmenter;
 

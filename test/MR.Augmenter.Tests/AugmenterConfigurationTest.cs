@@ -1,10 +1,11 @@
 ﻿using System.Linq;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 
 namespace MR.Augmenter
 {
-	public class AugmenterConfigurationTest : TestHost
+	public class AugmenterConfigurationTest : CommonTestHost
 	{
 		[Fact]
 		public void ConfigureAdd_AddsTypeConfigration()
@@ -36,6 +37,19 @@ namespace MR.Augmenter
 				o.Name.Should().Be("Foo");
 				o.Kind.Should().Be(AugmentKind.Remove);
 			});
+		}
+
+		[Fact]
+		public void Build_PicksUpBaseClasses()
+		{
+			var configuration = ConfigureCommon();
+
+			configuration.Build();
+
+			var t = configuration.TypeConfigurations.FirstOrDefault(tc => tc.Type == typeof(TestModelC));
+			t.BaseTypeConfigurations.Should()
+				.HaveCount(2).And
+				.OnlyContain(tc => tc.Type.GetTypeInfo().IsAssignableFrom(typeof(TestModelC)));
 		}
 
 		private AugmenterConfiguration Create() => new AugmenterConfiguration();

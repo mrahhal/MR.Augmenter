@@ -9,11 +9,11 @@ namespace MR.Augmenter
 		{
 		}
 
-		public AugmentationContext(object obj, List<TypeConfiguration> typeConfigurations, IReadOnlyDictionary<string, object> state)
+		public AugmentationContext(object obj, TypeConfiguration typeConfiguration, IReadOnlyDictionary<string, object> state)
 		{
 			Object = obj;
 			Type = obj.GetType();
-			TypeConfigurations = typeConfigurations;
+			TypeConfiguration = typeConfiguration;
 			State = state;
 		}
 
@@ -21,7 +21,9 @@ namespace MR.Augmenter
 
 		public Type Type { get; }
 
-		public List<TypeConfiguration> TypeConfigurations { get; }
+		public TypeConfiguration TypeConfiguration { get; }
+
+		public TypeConfiguration EphemeralTypeConfiguration { get; set; }
 
 		public IReadOnlyDictionary<string, object> State { get; }
 	}
