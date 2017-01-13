@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Threading.Tasks;
+using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -18,22 +19,22 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
-			public void Basic()
+			public async Task Basic()
 			{
 				var model = new TestModel1();
 
-				var result = _fixture.Augment(model) as JObject;
+				var result = await _fixture.AugmentAsync(model) as JObject;
 
 				result["Bar"].Value<string>().Should().Be($"({model.Id})");
 				result[nameof(TestModel1.Some)].Should().BeNull();
 			}
 
 			[Fact]
-			public void Basic_WithLocal()
+			public async Task Basic_WithLocal()
 			{
 				var model = new TestModel1();
 
-				var result = _fixture.Augment(model, c =>
+				var result = await _fixture.AugmentAsync(model, c =>
 				{
 					c.ConfigureAdd("Baz", (_, __) => 2);
 				}) as JObject;
@@ -44,11 +45,11 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
-			public void Add_WithIgnore_IgnoresAugment()
+			public async Task Add_WithIgnore_IgnoresAugment()
 			{
 				var model = new TestModel1();
 
-				var result = _fixture.Augment(model, c =>
+				var result = await _fixture.AugmentAsync(model, c =>
 				{
 					c.ConfigureAdd("Some", (_, __) => AugmentationValue.Ignore);
 				}) as JObject;
@@ -57,11 +58,11 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
-			public void Remove_WithIgnore_IgnoresAugment()
+			public async Task Remove_WithIgnore_IgnoresAugment()
 			{
 				var model = new TestModel1();
 
-				var result = _fixture.Augment(model, c =>
+				var result = await _fixture.AugmentAsync(model, c =>
 				{
 					c.ConfigureRemove(nameof(TestModel1.Foo), (_, __) => AugmentationValue.Ignore);
 				}) as JObject;
@@ -94,11 +95,11 @@ namespace MR.Augmenter
 				}
 
 				[Fact]
-				public void Basic()
+				public async Task Basic()
 				{
 					var model = new TestModelWithNested();
 
-					var result = _fixture.Augment(model) as JObject;
+					var result = await _fixture.AugmentAsync(model) as JObject;
 
 					result.Value<string>("Foo").Should().Be("42");
 					var nested = result.Value<JObject>("Nested");
@@ -120,7 +121,7 @@ namespace MR.Augmenter
 				}
 
 				[Fact]
-				public void Globally()
+				public async Task Globally()
 				{
 					var model = new TestModel1();
 
@@ -134,7 +135,7 @@ namespace MR.Augmenter
 					});
 					_fixture = MocksHelper.JsonAugmenter(_configuration);
 
-					var result = _fixture.Augment(model, addState: state =>
+					var result = await _fixture.AugmentAsync(model, addState: state =>
 					{
 						state.Add("key", "bar");
 					}) as JObject;
@@ -143,11 +144,11 @@ namespace MR.Augmenter
 				}
 
 				[Fact]
-				public void Locally()
+				public async Task Locally()
 				{
 					var model = new TestModel1();
 
-					var result = _fixture.Augment(model, c =>
+					var result = await _fixture.AugmentAsync(model, c =>
 					{
 						c.ConfigureAdd("Bar", (x, state) =>
 						{
@@ -162,7 +163,7 @@ namespace MR.Augmenter
 				}
 
 				[Fact]
-				public void Nested()
+				public async Task Nested()
 				{
 					var model = new TestModelWithNested();
 
@@ -177,7 +178,7 @@ namespace MR.Augmenter
 					});
 					_fixture = MocksHelper.JsonAugmenter(_configuration);
 
-					var result = _fixture.Augment(model, addState: state =>
+					var result = await _fixture.AugmentAsync(model, addState: state =>
 					{
 						state.Add("key", "foo");
 					}) as JObject;
@@ -186,11 +187,11 @@ namespace MR.Augmenter
 				}
 
 				[Fact]
-				public void WithIgnore()
+				public async Task WithIgnore()
 				{
 					var model = new TestModel1();
 
-					var result = _fixture.Augment(model, config =>
+					var result = await _fixture.AugmentAsync(model, config =>
 					{
 						config.ConfigureAdd("Bar", (x, state) =>
 						{

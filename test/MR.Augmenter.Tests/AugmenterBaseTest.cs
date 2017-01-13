@@ -20,23 +20,23 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public void Augment_Null_ReturnsNull()
+		public async Task Augment_Null_ReturnsNull()
 		{
 			var fixture = MocksHelper.AugmenterBase(new AugmenterConfiguration());
 			object model = null;
 
-			var result = fixture.Augment(model);
+			var result = await fixture.AugmentAsync(model);
 
 			result.Should().BeNull();
 		}
 
 		[Fact]
-		public void Augment_PicksUpBaseClasses()
+		public async Task Augment_PicksUpBaseClasses()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new TestModelC();
 
-			fixture.Augment(model);
+			await fixture.AugmentAsync(model);
 
 			var context = fixture.Contexts.First();
 			context.TypeConfigurations.Should()
@@ -45,12 +45,12 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public void Augment_TypeConfigurationsInCorrectOrder()
+		public async Task Augment_TypeConfigurationsInCorrectOrder()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new TestModelC();
 
-			fixture.Augment(model);
+			await fixture.AugmentAsync(model);
 
 			var context = fixture.Contexts.First();
 			var configurations = context.TypeConfigurations;
@@ -60,13 +60,13 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public void Augment_State_FallsThrough()
+		public async Task Augment_State_FallsThrough()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new TestModelC();
 			var someValue = "bars";
 
-			fixture.Augment(model, addState: state =>
+			await fixture.AugmentAsync(model, addState: state =>
 			{
 				state.Add("key", someValue);
 			});
@@ -75,7 +75,7 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public void Augment_ChecksComplexPropertiesAnyway()
+		public async Task Augment_ChecksComplexPropertiesAnyway()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new
@@ -83,13 +83,13 @@ namespace MR.Augmenter
 				Inner = new TestModelC()
 			};
 
-			fixture.Augment(model);
+			await fixture.AugmentAsync(model);
 
 			fixture.Contexts.Should().HaveCount(1);
 		}
 
 		[Fact]
-		public void Augment_PicksUpGlobalState()
+		public async Task Augment_PicksUpGlobalState()
 		{
 			var configuration = ConfigureCommon();
 			configuration.ConfigureGlobalState = (state, provider) =>
@@ -105,14 +105,14 @@ namespace MR.Augmenter
 			var p = services.BuildServiceProvider();
 			var fixture = MocksHelper.For<FakeAugmenterBase>(p);
 
-			fixture.Augment(new TestModel1());
+			await fixture.AugmentAsync(new TestModel1());
 
 			var context = fixture.Contexts.First();
 			context.State["Foo"].Should().Be("foo");
 		}
 
 		[Fact]
-		public void Augment_CopiesGlobalState()
+		public async Task Augment_CopiesGlobalState()
 		{
 			var configuration = ConfigureCommon();
 			configuration.ConfigureGlobalState = (state, provider) =>
@@ -128,7 +128,7 @@ namespace MR.Augmenter
 			var p = services.BuildServiceProvider();
 			var fixture = MocksHelper.For<FakeAugmenterBase>(p);
 
-			fixture.Augment(new TestModel1(), addState: state =>
+			await fixture.AugmentAsync(new TestModel1(), addState: state =>
 			{
 				state["Some"] = "some";
 			});
@@ -137,7 +137,7 @@ namespace MR.Augmenter
 			context.State["Foo"].Should().Be("foo");
 			context.State["Some"].Should().Be("some");
 
-			fixture.Augment(new TestModel1());
+			await fixture.AugmentAsync(new TestModel1());
 
 			context = fixture.Contexts.Last();
 			context.State["Foo"].Should().Be("foo");

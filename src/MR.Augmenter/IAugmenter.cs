@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MR.Augmenter
 {
@@ -16,7 +17,7 @@ namespace MR.Augmenter
 		/// <param name="configure">An action that adds more configuration to this augmentation.</param>
 		/// <param name="addState">An action that adds state that will be used by augmentations.</param>
 		/// <returns>A new augmented object.</returns>
-		object Augment<T>(
+		Task<object> AugmentAsync<T>(
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
 			Action<Dictionary<string, object>> addState = null);
