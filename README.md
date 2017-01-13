@@ -55,3 +55,9 @@ services.AddAugmenter(config => { ... });
 // This will add a global filter that will handle augmenting your returned models.
 services.AddAugmenterForMvc();
 ```
+
+# Samples
+Check out the samples under "samples/" for more practical use cases.
+
+#### [`Basic`](samples/Basic)
+Shows how to configure Augmenter in an Asp.Net core app with some practical examples.
