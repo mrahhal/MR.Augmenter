@@ -10,7 +10,7 @@ namespace MR.Augmenter
 		{
 		}
 
-		private class AugmenterActionFilterImpl : ActionFilterAttribute
+		private class AugmenterActionFilterImpl : IAsyncResultFilter
 		{
 			private IAugmenter _augmenter;
 
@@ -19,7 +19,7 @@ namespace MR.Augmenter
 				_augmenter = augmenter;
 			}
 
-			public override Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+			public Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
 			{
 				if (context.Result is ViewResult)
 				{

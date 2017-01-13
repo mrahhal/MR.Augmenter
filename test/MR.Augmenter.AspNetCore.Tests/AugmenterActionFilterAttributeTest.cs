@@ -42,7 +42,7 @@ namespace MR.Augmenter
 			var services = new ServiceCollection();
 			services.AddSingleton<IAugmenter>(mockAugmenter.Object);
 			var provider = services.BuildServiceProvider();
-			var filter = typeFilter.CreateInstance(provider) as ActionFilterAttribute;
+			var filter = typeFilter.CreateInstance(provider) as IAsyncResultFilter;
 
 			var context = CreateResultExecutingContext(filter, result);
 			var next = new ResultExecutionDelegate(() => Task.FromResult(CreateResultExecutedContext(context, result)));
