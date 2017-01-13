@@ -69,14 +69,13 @@ namespace Basic
 				});
 			});
 
-			services.AddMvc(options =>
-			{
-				options.Filters.Add(new AugmenterActionFilterAttribute());
-			})
-			.AddJsonOptions(options =>
-			{
-				options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
-			});
+			services.AddAugmenterForMvc();
+
+			services.AddMvc()
+				.AddJsonOptions(options =>
+				{
+					options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+				});
 		}
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
