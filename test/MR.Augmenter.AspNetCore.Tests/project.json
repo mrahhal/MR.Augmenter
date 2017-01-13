@@ -1,11 +1,7 @@
 ﻿{
   "dependencies": {
-    "dotnet-test-xunit": "2.2.0-preview2-*",
-    "FluentAssertions": "4.18.0",
-    "Microsoft.DotNet.InternalAbstractions": "1.0.1-beta-003206",
-    "Moq": "4.6.38-*",
-    "MR.Augmenter": "*",
-    "xunit": "2.2.0-*"
+    "MR.Augmenter.AspNetCore": "*",
+    "MR.Augmenter.Tests": "*"
   },
   "testRunner": "xunit",
   "frameworks": {

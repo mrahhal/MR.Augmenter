@@ -33,6 +33,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DB29D02D-7
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MR.Augmenter.Tests", "test\MR.Augmenter.Tests\MR.Augmenter.Tests.xproj", "{F34DE258-F0C6-44A8-8376-FB82BDBA5E9F}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MR.Augmenter.AspNetCore", "src\MR.Augmenter.AspNetCore\MR.Augmenter.AspNetCore.xproj", "{4E4426D0-6B26-4C2D-AA7C-4FABD57BDD42}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MR.Augmenter.AspNetCore.Tests", "test\MR.Augmenter.AspNetCore.Tests\MR.Augmenter.AspNetCore.Tests.xproj", "{1A2FDA2E-4CEE-443B-AD56-9324DF336FF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +51,14 @@ Global
 		{F34DE258-F0C6-44A8-8376-FB82BDBA5E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F34DE258-F0C6-44A8-8376-FB82BDBA5E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F34DE258-F0C6-44A8-8376-FB82BDBA5E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E4426D0-6B26-4C2D-AA7C-4FABD57BDD42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E4426D0-6B26-4C2D-AA7C-4FABD57BDD42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E4426D0-6B26-4C2D-AA7C-4FABD57BDD42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E4426D0-6B26-4C2D-AA7C-4FABD57BDD42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2FDA2E-4CEE-443B-AD56-9324DF336FF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2FDA2E-4CEE-443B-AD56-9324DF336FF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2FDA2E-4CEE-443B-AD56-9324DF336FF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2FDA2E-4CEE-443B-AD56-9324DF336FF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,5 +66,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3F392D1E-32A2-4BF6-8C13-862B4ED0372B} = {E8F7F39E-EF31-41DB-AD66-DE4957C740FA}
 		{F34DE258-F0C6-44A8-8376-FB82BDBA5E9F} = {DB29D02D-7021-48ED-82A3-F217BAAAC835}
+		{4E4426D0-6B26-4C2D-AA7C-4FABD57BDD42} = {E8F7F39E-EF31-41DB-AD66-DE4957C740FA}
+		{1A2FDA2E-4CEE-443B-AD56-9324DF336FF7} = {DB29D02D-7021-48ED-82A3-F217BAAAC835}
 	EndGlobalSection
 EndGlobal
