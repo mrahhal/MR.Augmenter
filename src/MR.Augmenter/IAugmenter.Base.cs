@@ -107,7 +107,9 @@ namespace MR.Augmenter
 								.FirstOrDefault(c => c.Type == p.PropertyType);
 							if (nestedTypeConfiguration != null)
 							{
-								typeConfigurations.Add(nestedTypeConfiguration);
+								var tc = new TypeConfiguration(type);
+								tc.NestedTypeConfigurations.Add(p, nestedTypeConfiguration);
+								typeConfigurations.Add(tc);
 							}
 						}
 					}

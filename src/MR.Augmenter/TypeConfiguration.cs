@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace MR.Augmenter
 {
-	public abstract class TypeConfiguration
+	public class TypeConfiguration
 	{
 		public TypeConfiguration(Type type)
 		{

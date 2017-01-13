@@ -18,12 +18,7 @@ namespace Basic.Controllers
 		[HttpGet("a")]
 		public IActionResult GetA()
 		{
-			var model = new ModelA
-			{
-				Id = 42,
-				Hash = Guid.NewGuid().ToString("N"),
-				Name = "Someone"
-			};
+			var model = new ModelA();
 
 			return Ok(model);
 		}
@@ -32,15 +27,22 @@ namespace Basic.Controllers
 		public IActionResult GetB()
 		{
 			// Inheritance works! ModelA's augments will be applied to ModelB.
-			var model = new ModelB
-			{
-				Id = 42,
-				Hash = Guid.NewGuid().ToString("N"),
-				Name = "Someone",
-				Details = "details"
-			};
+			var model = new ModelB();
 
 			return Ok(model);
+		}
+
+		[HttpGet("anon")]
+		public IActionResult GetAnon()
+		{
+			var model = new ModelB();
+
+			// Works with anonymous objects!
+			return Ok(new
+			{
+				Foo = "foo",
+				Inner = model
+			});
 		}
 	}
 }

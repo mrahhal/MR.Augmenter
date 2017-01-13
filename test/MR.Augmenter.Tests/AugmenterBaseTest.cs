@@ -75,7 +75,7 @@ namespace MR.Augmenter
 		}
 
 		[Fact]
-		public async Task Augment_ChecksComplexPropertiesAnyway()
+		public async Task Augment_ChecksComplexPropertiesAnywayForAnonymousObjects()
 		{
 			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
 			var model = new
@@ -86,6 +86,25 @@ namespace MR.Augmenter
 			await fixture.AugmentAsync(model);
 
 			fixture.Contexts.Should().HaveCount(1);
+		}
+
+		[Fact]
+		public async Task Augment_CorrectlySetsTypeConfigurationsForAnonymousObjects()
+		{
+			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
+			var model = new
+			{
+				Inner = new TestModelC()
+			};
+
+			await fixture.AugmentAsync(model);
+
+			var context = fixture.Contexts.First();
+			var tc = context.TypeConfigurations.First();
+			tc.Type.Should().Be(model.GetType());
+			var nested = tc.NestedTypeConfigurations.Should().HaveCount(1).And.Subject.First();
+			nested.Key.Name.Should().Be(nameof(model.Inner));
+			nested.Value.Type.Should().Be(typeof(TestModelC));
 		}
 
 		[Fact]

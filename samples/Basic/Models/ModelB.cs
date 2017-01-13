@@ -2,6 +2,6 @@
 {
 	public class ModelB : ModelA
 	{
-		public string Details { get; set; }
+		public string Details { get; set; } = "details";
 	}
 }
