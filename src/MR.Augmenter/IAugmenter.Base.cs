@@ -60,10 +60,7 @@ namespace MR.Augmenter
 				typeConfigurations.Add(localTypeConfigration);
 			}
 
-			var state =
-				addState == null ?
-				_emptyDictionary :
-				CreateDictionaryAndAddState(addState);
+			var state = CreateDictionaryAndAddState(addState);
 			var context = new AugmentationContext(obj, typeConfigurations, state);
 			return AugmentCore(context);
 		}
@@ -72,7 +69,18 @@ namespace MR.Augmenter
 			Action<Dictionary<string, object>> addState)
 		{
 			var dictionary = new Dictionary<string, object>();
-			addState(dictionary);
+
+			if (Configuration.ConfigureGlobalState != null)
+			{
+				var task = Configuration.ConfigureGlobalState(dictionary, Services);
+				if (task != null)
+				{
+					task.GetAwaiter().GetResult();
+				}
+			}
+
+			addState?.Invoke(dictionary);
+
 			return new ReadOnlyDictionary<string, object>(dictionary);
 		}
 

@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace MR.Augmenter
@@ -84,6 +86,67 @@ namespace MR.Augmenter
 			fixture.Augment(model);
 
 			fixture.Contexts.Should().HaveCount(1);
+		}
+
+		[Fact]
+		public void Augment_PicksUpGlobalState()
+		{
+			var configuration = ConfigureCommon();
+			configuration.ConfigureGlobalState = (state, provider) =>
+			{
+				var someService = provider.GetService<SomeService>();
+				state["Foo"] = someService.Foo;
+				return Task.CompletedTask;
+			};
+			var services = new ServiceCollection();
+			services.AddSingleton(configuration);
+			services.AddSingleton<FakeAugmenterBase>();
+			services.AddSingleton<SomeService>();
+			var p = services.BuildServiceProvider();
+			var fixture = MocksHelper.For<FakeAugmenterBase>(p);
+
+			fixture.Augment(new TestModel1());
+
+			var context = fixture.Contexts.First();
+			context.State["Foo"].Should().Be("foo");
+		}
+
+		[Fact]
+		public void Augment_CopiesGlobalState()
+		{
+			var configuration = ConfigureCommon();
+			configuration.ConfigureGlobalState = (state, provider) =>
+			{
+				var someService = provider.GetService<SomeService>();
+				state["Foo"] = someService.Foo;
+				return Task.CompletedTask;
+			};
+			var services = new ServiceCollection();
+			services.AddSingleton(configuration);
+			services.AddSingleton<FakeAugmenterBase>();
+			services.AddSingleton<SomeService>();
+			var p = services.BuildServiceProvider();
+			var fixture = MocksHelper.For<FakeAugmenterBase>(p);
+
+			fixture.Augment(new TestModel1(), addState: state =>
+			{
+				state["Some"] = "some";
+			});
+
+			var context = fixture.Contexts.Last();
+			context.State["Foo"].Should().Be("foo");
+			context.State["Some"].Should().Be("some");
+
+			fixture.Augment(new TestModel1());
+
+			context = fixture.Contexts.Last();
+			context.State["Foo"].Should().Be("foo");
+			context.State.Should().NotContain("Some");
+		}
+
+		private class SomeService
+		{
+			public string Foo { get; set; } = "foo";
 		}
 	}
 }

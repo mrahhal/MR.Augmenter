@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MR.Augmenter
 {
 	public class AugmenterConfiguration
 	{
+		public bool Built { get; private set; }
+
 		internal List<TypeConfiguration> TypeConfigurations { get; } = new List<TypeConfiguration>();
 
-		public bool Built { get; private set; }
+		public Func<IDictionary<string, object>, IServiceProvider, Task> ConfigureGlobalState { get; set; }
 
 		public void Configure<T>(Action<TypeConfiguration<T>> configure)
 		{
