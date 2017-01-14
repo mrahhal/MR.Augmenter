@@ -90,16 +90,16 @@ public class BuildVersion
 
 	public string VersionWithoutQuality()
 	{
-		return $"{Major}.{Minor}.{Patch}";
+		return Major + "." + Minor + "." + Patch;
 	}
 
 	public string Version()
 	{
-		return VersionWithoutQuality() + (Quality == null ? string.Empty : $"-{Quality}");
+		return VersionWithoutQuality() + (Quality == null ? string.Empty : "-" + Quality);
 	}
 
 	public string VersionWithSuffix()
 	{
-		return Version() + (Suffix == null ? string.Empty : $"-{Suffix}");
+		return Version() + (Suffix == null ? string.Empty : "-"+ Suffix);
 	}
 }
