@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,19 +10,20 @@ namespace MR.Augmenter
 	public class AugmenterBaseTest : CommonTestHost
 	{
 		[Fact]
-		public void Augment_AugmenterConfigurationNotBuild_BuildsIt()
+		public void Augment_AugmenterConfigurationNotBuild_Throw()
 		{
 			var configration = new AugmenterConfiguration();
 
-			MocksHelper.AugmenterBase(configration);
-
-			configration.Built.Should().BeTrue();
+			Assert.ThrowsAny<Exception>(() =>
+			{
+				MocksHelper.AugmenterBase(configration);
+			});
 		}
 
 		[Fact]
 		public async Task Augment_Null_ReturnsNull()
 		{
-			var fixture = MocksHelper.AugmenterBase(new AugmenterConfiguration());
+			var fixture = MocksHelper.AugmenterBase(CreateBuiltConfiguration());
 			object model = null;
 
 			var result = await fixture.AugmentAsync(model);

@@ -91,6 +91,7 @@ namespace MR.Augmenter
 						c.ConfigureAdd("Foo", (_, __) => "44");
 					});
 
+					_configuration.Build();
 					_fixture = MocksHelper.JsonAugmenter(_configuration);
 				}
 
@@ -116,7 +117,7 @@ namespace MR.Augmenter
 
 				public State()
 				{
-					_configuration = new AugmenterConfiguration();
+					_configuration = CreateBuiltConfiguration();
 					_fixture = MocksHelper.JsonAugmenter(_configuration);
 				}
 
@@ -133,6 +134,7 @@ namespace MR.Augmenter
 							return state["key"];
 						});
 					});
+					_configuration.Build();
 					_fixture = MocksHelper.JsonAugmenter(_configuration);
 
 					var result = await _fixture.AugmentAsync(model, addState: state =>
@@ -176,6 +178,7 @@ namespace MR.Augmenter
 							return state["key"];
 						});
 					});
+					_configuration.Build();
 					_fixture = MocksHelper.JsonAugmenter(_configuration);
 
 					var result = await _fixture.AugmentAsync(model, addState: state =>

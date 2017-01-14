@@ -17,6 +17,11 @@ namespace MR.Augmenter
 
 		public void Configure<T>(Action<TypeConfiguration<T>> configure)
 		{
+			if (Built)
+			{
+				throw new InvalidOperationException("The configuration has already been built.");
+			}
+
 			var type = typeof(T);
 			var typeConfiguration = TypeConfigurations.FirstOrDefault(c => c.Type == type) as TypeConfiguration<T>;
 			if (typeConfiguration == null)

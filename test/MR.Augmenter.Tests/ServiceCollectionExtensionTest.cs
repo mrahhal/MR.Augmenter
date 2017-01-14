@@ -17,6 +17,7 @@ namespace MR.Augmenter
 				{
 					c.ConfigureAdd("Bar", (_, __) => "bar");
 				});
+				config.Build();
 			});
 
 			var provider = services.BuildServiceProvider();

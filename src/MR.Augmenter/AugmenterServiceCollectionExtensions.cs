@@ -13,6 +13,7 @@ namespace MR.Augmenter
 
 			var configuration = new AugmenterConfiguration();
 			configure(configuration);
+			configuration.Build();
 			services.AddSingleton(configuration);
 		}
 	}

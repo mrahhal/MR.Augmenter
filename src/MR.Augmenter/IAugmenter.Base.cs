@@ -24,7 +24,11 @@ namespace MR.Augmenter
 			AugmenterConfiguration configuration,
 			IServiceProvider services)
 		{
-			configuration.Build();
+			if (!configuration.Built)
+			{
+				throw new InvalidOperationException("AugmenterConfiguration should be built first using Build().");
+			}
+
 			Configuration = configuration;
 			Services = services;
 		}

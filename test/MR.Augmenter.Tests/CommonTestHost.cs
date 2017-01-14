@@ -2,7 +2,7 @@
 {
 	public abstract class CommonTestHost : TestHost
 	{
-		protected AugmenterConfiguration ConfigureCommon()
+		protected AugmenterConfiguration ConfigureCommon(bool build = true)
 		{
 			var configuration = new AugmenterConfiguration();
 
@@ -26,6 +26,18 @@
 				c.ConfigureRemove(nameof(TestModel1.Some));
 			});
 
+			if (build)
+			{
+				configuration.Build();
+			}
+
+			return configuration;
+		}
+
+		protected AugmenterConfiguration CreateBuiltConfiguration()
+		{
+			var configuration = new AugmenterConfiguration();
+			configuration.Build();
 			return configuration;
 		}
 	}
