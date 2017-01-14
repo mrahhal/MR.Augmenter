@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MR.Augmenter
 {
+	[DebuggerDisplay("{Kind}: {Name}")]
 	public class Augment
 	{
 		internal Augment(string name, AugmentKind kind)

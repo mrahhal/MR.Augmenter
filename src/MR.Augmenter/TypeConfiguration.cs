@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace MR.Augmenter
 {
+	[DebuggerDisplay("Augments: {Augments.Count}, Base: {BaseTypeConfigurations.Count}, Nested: {NestedTypeConfigurations.Count}")]
 	public class TypeConfiguration
 	{
 		public TypeConfiguration(Type type)
