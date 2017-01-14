@@ -57,7 +57,7 @@ namespace MR.Augmenter
 				{
 					var someService = provider.GetService<SomeService>();
 					state["Foo"] = someService.Foo;
-					return Task.CompletedTask;
+					return Task.FromResult(0);
 				};
 				var services = new ServiceCollection();
 				services.AddSingleton(configuration);
@@ -80,7 +80,7 @@ namespace MR.Augmenter
 				{
 					var someService = provider.GetService<SomeService>();
 					state["Foo"] = someService.Foo;
-					return Task.CompletedTask;
+					return Task.FromResult(0);
 				};
 				var services = new ServiceCollection();
 				services.AddSingleton(configuration);
