@@ -43,5 +43,18 @@ namespace Basic.Controllers
 				Inner = model
 			});
 		}
+
+		[HttpGet("list")]
+		public IActionResult GetList()
+		{
+			var list = new[]
+			{
+				new ModelB() { Id = 1 },
+				new ModelB() { Id = 2 }
+			};
+
+			// Works with lists too.
+			return Ok(list);
+		}
 	}
 }

@@ -93,6 +93,16 @@ namespace MR.Augmenter
 				return AugmentCore();
 			}
 
+			public Task<object> AugmentAsync<T>(IEnumerable<T> list, Action<TypeConfiguration<T>> configure = null, Action<Dictionary<string, object>> addState = null)
+			{
+				return AugmentCore();
+			}
+
+			public Task<object> AugmentAsync<T>(T[] list, Action<TypeConfiguration<T>> configure = null, Action<Dictionary<string, object>> addState = null)
+			{
+				return AugmentCore();
+			}
+
 			public virtual Task<object> AugmentCore()
 			{
 				return Task.FromResult((object)null);

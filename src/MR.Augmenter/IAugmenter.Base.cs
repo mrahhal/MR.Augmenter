@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using MR.Augmenter.Internal;
 
 namespace MR.Augmenter
 {
@@ -18,6 +20,7 @@ namespace MR.Augmenter
 		private IReadOnlyDictionary<string, object> _emptyDictionary =
 			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
 
+		private Task<object> _nullResultTask = Task.FromResult((object)null);
 		private TypeConfigurationBuilder _builder;
 
 		public AugmenterBase(
@@ -38,7 +41,7 @@ namespace MR.Augmenter
 
 		public IServiceProvider Services { get; }
 
-		public virtual async Task<object> AugmentAsync<T>(
+		public virtual async Task<object> AugmentAsync222<T>(
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
 			Action<Dictionary<string, object>> addState = null)
@@ -48,7 +51,17 @@ namespace MR.Augmenter
 				return null;
 			}
 
-			var type = obj.GetType();
+			var originalType = obj.GetType();
+			var type = originalType;
+			var isEnumerable = false;
+
+			Type typeParameter;
+			if (ReflectionHelper.IsEnumerableOrArrayType(type, out typeParameter))
+			{
+				isEnumerable = true;
+				type = typeParameter;
+			}
+
 			var typeConfiguration = ResolveTypeConfiguration(type);
 
 			if (typeConfiguration == null && configure == null)
@@ -64,6 +77,172 @@ namespace MR.Augmenter
 				var ephemeralTypeConfigration = new TypeConfiguration<T>();
 				configure(ephemeralTypeConfigration);
 				context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
+			}
+
+			if (isEnumerable)
+			{
+				context.Type = type;
+
+				var asEnumerable = obj as IEnumerable;
+				var list = new List<object>();
+				foreach (var item in asEnumerable)
+				{
+					context.Object = item;
+					list.Add(AugmentCore(context));
+				}
+				return list;
+			}
+
+			return AugmentCore(context);
+		}
+
+		public virtual Task<object> AugmentAsync<T>(
+			T obj,
+			Action<TypeConfiguration<T>> configure = null,
+			Action<Dictionary<string, object>> addState = null)
+		{
+			if (obj == null)
+			{
+				return _nullResultTask;
+			}
+
+			var type = obj.GetType();
+
+			if (configure == null)
+			{
+				return AugmentCommon(
+					obj, type,
+					addState,
+					null,
+					null);
+			}
+			else
+			{
+				return AugmentCommon(
+					obj, type,
+					addState,
+					(context, state) =>
+					{
+						var c = state as Action<TypeConfiguration<T>>;
+						var ephemeralTypeConfigration = new TypeConfiguration<T>();
+						c(ephemeralTypeConfigration);
+						context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
+					},
+					configure);
+			}
+		}
+
+		public Task<object> AugmentAsync<T>(
+			IEnumerable<T> obj,
+			Action<TypeConfiguration<T>> configure = null,
+			Action<Dictionary<string, object>> addState = null)
+		{
+			if (obj == null)
+			{
+				return _nullResultTask;
+			}
+
+			var type = obj.GetType();
+
+			if (configure == null)
+			{
+				return AugmentCommon(
+					obj, type,
+					addState,
+					null,
+					null);
+			}
+			else
+			{
+				return AugmentCommon(
+					obj, type,
+					addState,
+					(context, state) =>
+					{
+						var c = state as Action<TypeConfiguration<T>>;
+						var ephemeralTypeConfigration = new TypeConfiguration<T>();
+						c(ephemeralTypeConfigration);
+						context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
+					},
+					configure);
+			}
+		}
+
+		public Task<object> AugmentAsync<T>(
+			T[] obj,
+			Action<TypeConfiguration<T>> configure = null,
+			Action<Dictionary<string, object>> addState = null)
+		{
+			if (obj == null)
+			{
+				return _nullResultTask;
+			}
+
+			var type = obj.GetType();
+
+			if (configure == null)
+			{
+				return AugmentCommon(
+					obj, type,
+					addState,
+					null,
+					null);
+			}
+			else
+			{
+				return AugmentCommon(
+					obj, type,
+					addState,
+					(context, state) =>
+					{
+						var c = state as Action<TypeConfiguration<T>>;
+						var ephemeralTypeConfigration = new TypeConfiguration<T>();
+						c(ephemeralTypeConfigration);
+						context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
+					},
+					configure);
+			}
+		}
+
+		public virtual async Task<object> AugmentCommon(
+			object obj, Type type,
+			Action<Dictionary<string, object>> addState,
+			Action<AugmentationContext, object> configure,
+			object configureState)
+		{
+			var isEnumerable = false;
+
+			Type typeParameter;
+			if (ReflectionHelper.IsEnumerableOrArrayType(type, out typeParameter))
+			{
+				isEnumerable = true;
+				type = typeParameter;
+			}
+
+			var typeConfiguration = ResolveTypeConfiguration(type);
+
+			if (typeConfiguration == null && configure == null)
+			{
+				return obj;
+			}
+
+			var state = await CreateDictionaryAndAddStateAsync(addState);
+			var context = new AugmentationContext(obj, typeConfiguration, state);
+
+			configure?.Invoke(context, configureState);
+
+			if (isEnumerable)
+			{
+				context.Type = type;
+
+				var asEnumerable = obj as IEnumerable;
+				var list = new List<object>();
+				foreach (var item in asEnumerable)
+				{
+					context.Object = item;
+					list.Add(AugmentCore(context));
+				}
+				return list;
 			}
 
 			return AugmentCore(context);

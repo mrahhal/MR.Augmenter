@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -102,6 +103,45 @@ namespace MR.Augmenter
 				context = fixture.Contexts.Last();
 				context.State["Foo"].Should().Be("foo");
 				context.State.Should().NotContain("Some");
+			}
+
+			public class EnumerableTest : AugmentTest
+			{
+				[Fact]
+				public async Task SupportsEnumerable()
+				{
+					var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+					var list = new List<TestModelC>
+					{
+						new TestModelC(),
+						new TestModelC()
+					};
+
+					await fixture.AugmentAsync(list);
+
+					fixture.Contexts.Should().HaveCount(list.Count);
+					var context = fixture.Contexts.First();
+					context.Type.Should().Be(typeof(TestModelC));
+					context.TypeConfiguration.Type.Should().Be(typeof(TestModelC));
+				}
+
+				[Fact]
+				public async Task SupportsArrays()
+				{
+					var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+					var arr = new TestModelC[]
+					{
+						new TestModelC(),
+						new TestModelC()
+					};
+
+					await fixture.AugmentAsync(arr);
+
+					fixture.Contexts.Should().HaveCount(arr.Length);
+					var context = fixture.Contexts.First();
+					context.Type.Should().Be(typeof(TestModelC));
+					context.TypeConfiguration.Type.Should().Be(typeof(TestModelC));
+				}
 			}
 		}
 

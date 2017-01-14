@@ -21,5 +21,31 @@ namespace MR.Augmenter
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
 			Action<Dictionary<string, object>> addState = null);
+
+		/// <summary>
+		/// Augments a list of objects according to configuration.
+		/// </summary>
+		/// <typeparam name="T">The augmented object's type.</typeparam>
+		/// <param name="list">The list of objects to augment.</param>
+		/// <param name="configure">An action that adds more configuration to this augmentation.</param>
+		/// <param name="addState">An action that adds state that will be used by augmentations.</param>
+		/// <returns>A new list of augmented objects.</returns>
+		Task<object> AugmentAsync<T>(
+			IEnumerable<T> list,
+			Action<TypeConfiguration<T>> configure = null,
+			Action<Dictionary<string, object>> addState = null);
+
+		/// <summary>
+		/// Augments an array of objects according to configuration.
+		/// </summary>
+		/// <typeparam name="T">The augmented object's type.</typeparam>
+		/// <param name="list">The list of objects to augment.</param>
+		/// <param name="configure">An action that adds more configuration to this augmentation.</param>
+		/// <param name="addState">An action that adds state that will be used by augmentations.</param>
+		/// <returns>A new list of augmented objects.</returns>
+		Task<object> AugmentAsync<T>(
+			T[] list,
+			Action<TypeConfiguration<T>> configure = null,
+			Action<Dictionary<string, object>> addState = null);
 	}
 }

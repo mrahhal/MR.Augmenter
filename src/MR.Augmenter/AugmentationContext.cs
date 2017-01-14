@@ -17,13 +17,13 @@ namespace MR.Augmenter
 			State = state;
 		}
 
-		public object Object { get; }
+		public object Object { get; internal set; }
 
-		public Type Type { get; }
+		public Type Type { get; internal set; }
 
 		public TypeConfiguration TypeConfiguration { get; }
 
-		public TypeConfiguration EphemeralTypeConfiguration { get; set; }
+		public TypeConfiguration EphemeralTypeConfiguration { get; internal set; }
 
 		public IReadOnlyDictionary<string, object> State { get; }
 	}
