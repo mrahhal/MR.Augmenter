@@ -42,29 +42,9 @@ Task("Test")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
-	foreach (var project in build.TestProjectFiles)
+	foreach (var testProject in build.TestProjectFiles)
 	{
-		if (IsRunningOnWindows())
-		{
-			DotNetCoreTest(project.FullPath);
-		}
-		else
-		{
-			var name = project.GetFilenameWithoutExtension();
-			var dirPath = project.GetDirectory().FullPath;
-			var config = build.Configuration;
-			var xunit = GetFiles(dirPath + "/bin/" + config + "/net451/*/dotnet-test-xunit.exe").First().FullPath;
-			var testfile = GetFiles(dirPath + "/bin/" + config + "/net451/*/" + name + ".dll").First().FullPath;
-
-			using(var process = StartAndReturnProcess("mono", new ProcessSettings{ Arguments = xunit + " " + testfile }))
-			{
-				process.WaitForExit();
-				if (process.GetExitCode() != 0)
-				{
-					throw new Exception("Mono tests failed!");
-				}
-			}
-		}
+		DotNetCoreTest(testProject.FullPath);
 	}
 });
 
