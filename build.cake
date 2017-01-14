@@ -95,7 +95,7 @@ Task("Default")
 Task("Version")
 	.Does(() =>
 {
-	Information(build.FullVersion());
+	Information($"{build.FullVersion()}");
 });
 
 Task("Print")
