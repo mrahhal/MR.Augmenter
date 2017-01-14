@@ -41,61 +41,6 @@ namespace MR.Augmenter
 
 		public IServiceProvider Services { get; }
 
-		public virtual async Task<object> AugmentAsync222<T>(
-			T obj,
-			Action<TypeConfiguration<T>> configure = null,
-			Action<Dictionary<string, object>> addState = null)
-		{
-			if (obj == null)
-			{
-				return null;
-			}
-
-			var originalType = obj.GetType();
-			var type = originalType;
-			var isEnumerable = false;
-
-			Type typeParameter;
-			if (ReflectionHelper.IsEnumerableOrArrayType(type, out typeParameter))
-			{
-				isEnumerable = true;
-				type = typeParameter;
-			}
-
-			var typeConfiguration = ResolveTypeConfiguration(type);
-
-			if (typeConfiguration == null && configure == null)
-			{
-				return obj;
-			}
-
-			var state = await CreateDictionaryAndAddStateAsync(addState);
-			var context = new AugmentationContext(obj, typeConfiguration, state);
-
-			if (configure != null)
-			{
-				var ephemeralTypeConfigration = new TypeConfiguration<T>();
-				configure(ephemeralTypeConfigration);
-				context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
-			}
-
-			if (isEnumerable)
-			{
-				context.Type = type;
-
-				var asEnumerable = obj as IEnumerable;
-				var list = new List<object>();
-				foreach (var item in asEnumerable)
-				{
-					context.Object = item;
-					list.Add(AugmentCore(context));
-				}
-				return list;
-			}
-
-			return AugmentCore(context);
-		}
-
 		public virtual Task<object> AugmentAsync<T>(
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
