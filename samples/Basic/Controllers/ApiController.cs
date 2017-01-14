@@ -56,5 +56,20 @@ namespace Basic.Controllers
 			// Works with lists too.
 			return Ok(list);
 		}
+
+		[HttpGet("wrapper")]
+		public IActionResult GetWrapper()
+		{
+			// You can use the special AugmenterWrapper to wrap your model with
+			// some configuration that will be used when doing the augmentation.
+			var model = new ModelB();
+			var wrapper = new AugmenterWrapper(model);
+			wrapper.SetConfiguration<ModelB>(c =>
+			{
+				c.ConfigureAdd("Baz", (x, state) => x.Id);
+			});
+
+			return Ok(wrapper);
+		}
 	}
 }

@@ -219,6 +219,13 @@ namespace MR.Augmenter
 				type = typeParameter;
 			}
 
+			AugmenterWrapper wrapper = obj as AugmenterWrapper;
+			if (wrapper != null)
+			{
+				type = wrapper.Object.GetType();
+				obj = wrapper.Object;
+			}
+
 			var typeConfiguration = ResolveTypeConfiguration(type);
 
 			if (typeConfiguration == null && configure == null)
@@ -228,6 +235,11 @@ namespace MR.Augmenter
 
 			var state = await CreateDictionaryAndAddStateAsync(addState);
 			var context = new AugmentationContext(obj, typeConfiguration, state);
+
+			if (wrapper != null)
+			{
+				context.EphemeralTypeConfiguration = wrapper.TypeConfiguration;
+			}
 
 			configure?.Invoke(context, configureState);
 

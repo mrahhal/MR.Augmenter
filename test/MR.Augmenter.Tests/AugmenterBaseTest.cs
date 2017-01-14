@@ -143,6 +143,30 @@ namespace MR.Augmenter
 					context.TypeConfiguration.Type.Should().Be(typeof(TestModelC));
 				}
 			}
+
+			public class WrapperTest : AugmentTest
+			{
+				[Fact]
+				public async Task PicksUpWrapperConfiguration()
+				{
+					var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+					var model = new TestModel1();
+					var wrapper = new AugmenterWrapper(model);
+					wrapper.SetConfiguration<TestModel1>(c =>
+					{
+						c.ConfigureAdd("Baz", (x, state) => x.Id);
+					});
+
+					await fixture.AugmentAsync(wrapper);
+
+					fixture.Contexts.Should().HaveCount(1);
+					var context = fixture.Contexts.First();
+					context.Type.Should().Be(typeof(TestModel1));
+					context.TypeConfiguration.Type.Should().Be(typeof(TestModel1));
+					context.EphemeralTypeConfiguration.Type.Should().Be(typeof(TestModel1));
+					context.EphemeralTypeConfiguration.Augments.Should().HaveCount(1);
+				}
+			}
 		}
 
 		private class SomeService
