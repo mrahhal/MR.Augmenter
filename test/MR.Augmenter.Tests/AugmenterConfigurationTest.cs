@@ -5,7 +5,7 @@ using Xunit;
 
 namespace MR.Augmenter
 {
-	public class AugmenterConfigurationTest : CommonTestHost
+	public class AugmenterConfigurationTest : TestHost
 	{
 		[Fact]
 		public void ConfigureAdd_AddsTypeConfigration()
@@ -42,7 +42,7 @@ namespace MR.Augmenter
 		[Fact]
 		public void Build_PicksUpBaseClasses()
 		{
-			var configuration = ConfigureCommon();
+			var configuration = CreateCommonConfiguration();
 
 			configuration.Build();
 

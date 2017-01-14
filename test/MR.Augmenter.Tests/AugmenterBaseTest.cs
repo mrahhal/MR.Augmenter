@@ -7,133 +7,136 @@ using Xunit;
 
 namespace MR.Augmenter
 {
-	public class AugmenterBaseTest : CommonTestHost
+	public class AugmenterBaseTest : TestHost
 	{
-		[Fact]
-		public void Augment_AugmenterConfigurationNotBuild_Throw()
+		public class AugmentTest : AugmenterBaseTest
 		{
-			var configration = new AugmenterConfiguration();
-
-			Assert.ThrowsAny<Exception>(() =>
+			[Fact]
+			public void AugmenterConfigurationNotBuild_Throw()
 			{
-				MocksHelper.AugmenterBase(configration);
-			});
-		}
+				var configration = new AugmenterConfiguration();
 
-		[Fact]
-		public async Task Augment_Null_ReturnsNull()
-		{
-			var fixture = MocksHelper.AugmenterBase(CreateBuiltConfiguration());
-			object model = null;
+				Assert.ThrowsAny<Exception>(() =>
+				{
+					MocksHelper.AugmenterBase(configration);
+				});
+			}
 
-			var result = await fixture.AugmentAsync(model);
-
-			result.Should().BeNull();
-		}
-
-		[Fact]
-		public async Task Augment_State_FallsThrough()
-		{
-			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
-			var model = new TestModelC();
-			var someValue = "bars";
-
-			await fixture.AugmentAsync(model, addState: state =>
+			[Fact]
+			public async Task Null_ReturnsNull()
 			{
-				state.Add("key", someValue);
-			});
+				var fixture = MocksHelper.AugmenterBase(CreateBuiltConfiguration());
+				object model = null;
 
-			fixture.Contexts.First().State["key"].Should().Be(someValue);
-		}
+				var result = await fixture.AugmentAsync(model);
 
-		[Fact]
-		public async Task Augment_ChecksComplexPropertiesAnywayForUnknownObjects()
-		{
-			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
-			var model = new
+				result.Should().BeNull();
+			}
+
+			[Fact]
+			public async Task State_FallsThrough()
 			{
-				Inner = new TestModelC()
-			};
+				var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+				var model = new TestModelC();
+				var someValue = "bars";
 
-			await fixture.AugmentAsync(model);
+				await fixture.AugmentAsync(model, addState: state =>
+				{
+					state.Add("key", someValue);
+				});
 
-			fixture.Contexts.Should().HaveCount(1);
-		}
+				fixture.Contexts.First().State["key"].Should().Be(someValue);
+			}
 
-		[Fact]
-		public async Task Augment_CorrectlySetsTypeConfigurationsForUnknownObjects()
-		{
-			var fixture = MocksHelper.AugmenterBase(ConfigureCommon());
-			var model = new
+			[Fact]
+			public async Task ChecksComplexPropertiesAnywayForUnknownObjects()
 			{
-				Inner = new TestModelC()
-			};
+				var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+				var model = new
+				{
+					Inner = new TestModelC()
+				};
 
-			await fixture.AugmentAsync(model);
+				await fixture.AugmentAsync(model);
 
-			var context = fixture.Contexts.First();
-			var tc = context.TypeConfiguration;
-			tc.Type.Should().Be(model.GetType());
-			var nested = tc.NestedTypeConfigurations.Should().HaveCount(1).And.Subject.First();
-			nested.Key.Name.Should().Be(nameof(model.Inner));
-			nested.Value.Type.Should().Be(typeof(TestModelC));
-			nested.Value.BaseTypeConfigurations.Should().NotBeEmpty();
-		}
+				fixture.Contexts.Should().HaveCount(1);
+			}
 
-		[Fact]
-		public async Task Augment_PicksUpGlobalState()
-		{
-			var configuration = ConfigureCommon();
-			configuration.ConfigureGlobalState = (state, provider) =>
+			[Fact]
+			public async Task CorrectlySetsTypeConfigurationsForUnknownObjects()
 			{
-				var someService = provider.GetService<SomeService>();
-				state["Foo"] = someService.Foo;
-				return Task.CompletedTask;
-			};
-			var services = new ServiceCollection();
-			services.AddSingleton(configuration);
-			services.AddSingleton<FakeAugmenterBase>();
-			services.AddSingleton<SomeService>();
-			var p = services.BuildServiceProvider();
-			var fixture = MocksHelper.For<FakeAugmenterBase>(p);
+				var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+				var model = new
+				{
+					Inner = new TestModelC()
+				};
 
-			await fixture.AugmentAsync(new TestModel1());
+				await fixture.AugmentAsync(model);
 
-			var context = fixture.Contexts.First();
-			context.State["Foo"].Should().Be("foo");
-		}
+				var context = fixture.Contexts.First();
+				var tc = context.TypeConfiguration;
+				tc.Type.Should().Be(model.GetType());
+				var nested = tc.NestedTypeConfigurations.Should().HaveCount(1).And.Subject.First();
+				nested.Key.Name.Should().Be(nameof(model.Inner));
+				nested.Value.Type.Should().Be(typeof(TestModelC));
+				nested.Value.BaseTypeConfigurations.Should().NotBeEmpty();
+			}
 
-		[Fact]
-		public async Task Augment_CopiesGlobalState()
-		{
-			var configuration = ConfigureCommon();
-			configuration.ConfigureGlobalState = (state, provider) =>
+			[Fact]
+			public async Task PicksUpGlobalState()
 			{
-				var someService = provider.GetService<SomeService>();
-				state["Foo"] = someService.Foo;
-				return Task.CompletedTask;
-			};
-			var services = new ServiceCollection();
-			services.AddSingleton(configuration);
-			services.AddSingleton<FakeAugmenterBase>();
-			services.AddSingleton<SomeService>();
-			var p = services.BuildServiceProvider();
-			var fixture = MocksHelper.For<FakeAugmenterBase>(p);
+				var configuration = CreateCommonConfiguration();
+				configuration.ConfigureGlobalState = (state, provider) =>
+				{
+					var someService = provider.GetService<SomeService>();
+					state["Foo"] = someService.Foo;
+					return Task.CompletedTask;
+				};
+				var services = new ServiceCollection();
+				services.AddSingleton(configuration);
+				services.AddSingleton<FakeAugmenterBase>();
+				services.AddSingleton<SomeService>();
+				var p = services.BuildServiceProvider();
+				var fixture = MocksHelper.For<FakeAugmenterBase>(p);
 
-			await fixture.AugmentAsync(new TestModel1(), addState: state =>
+				await fixture.AugmentAsync(new TestModel1());
+
+				var context = fixture.Contexts.First();
+				context.State["Foo"].Should().Be("foo");
+			}
+
+			[Fact]
+			public async Task CopiesGlobalState()
 			{
-				state["Some"] = "some";
-			});
+				var configuration = CreateCommonConfiguration();
+				configuration.ConfigureGlobalState = (state, provider) =>
+				{
+					var someService = provider.GetService<SomeService>();
+					state["Foo"] = someService.Foo;
+					return Task.CompletedTask;
+				};
+				var services = new ServiceCollection();
+				services.AddSingleton(configuration);
+				services.AddSingleton<FakeAugmenterBase>();
+				services.AddSingleton<SomeService>();
+				var p = services.BuildServiceProvider();
+				var fixture = MocksHelper.For<FakeAugmenterBase>(p);
 
-			var context = fixture.Contexts.Last();
-			context.State["Foo"].Should().Be("foo");
-			context.State["Some"].Should().Be("some");
+				await fixture.AugmentAsync(new TestModel1(), addState: state =>
+				{
+					state["Some"] = "some";
+				});
 
-			await fixture.AugmentAsync(new TestModel1());
+				var context = fixture.Contexts.Last();
+				context.State["Foo"].Should().Be("foo");
+				context.State["Some"].Should().Be("some");
 
-			context = fixture.Contexts.Last();
-			context.State["Foo"].Should().Be("foo");
-			context.State.Should().NotContain("Some");
+				await fixture.AugmentAsync(new TestModel1());
+
+				context = fixture.Contexts.Last();
+				context.State["Foo"].Should().Be("foo");
+				context.State.Should().NotContain("Some");
+			}
 		}
 
 		private class SomeService
