@@ -8,7 +8,7 @@ Take control of the data your API returns.
 
 ## What and Why
 - We have some changes (add props, remove props) we want to apply to our models centrally (and conditionally).
-- We want this to play nice with inheritance.
+- We want this to play nice with inheritance, nesting, enumerables, ...
 - We want all of this to happen preferably automatically. We should be able to just write:
 
 ```cs
@@ -22,8 +22,13 @@ This is what we'll be able to do after we configure Augmenter:
 class Model
 {
     public int Id { get; set; }
+
     public string Hash { get; set; }
+
+    // Suppose we need this in our action, but we want to hide it in our response.
     public string Secret { get; set; }
+
+    // Also, we want to add computed "Image" and "ImageThumb" properties.
 }
 ```
 
@@ -47,7 +52,7 @@ Returned json:
 
 ## Getting started
 
-- Add Augmenter and configure global options:
+Add Augmenter and configure global options:
 
 ```cs
 services.AddAugmenter(config => { ... });
@@ -55,6 +60,35 @@ services.AddAugmenter(config => { ... });
 // This will add a global filter that will handle augmenting your returned models.
 services.AddAugmenterForMvc();
 ```
+
+From here on out, simply do what you always do. Augmenter will start working automatically with the models you return.
+
+Inheritance, nested types, anonymous objects containing configured models, lists and arrays... Those are all accounted for.
+
+## Configuration
+
+```cs
+services.AddAugmenter(config =>
+{
+    // Start configuring the type "Model1".
+    config.Configure<Model1>(c =>
+    {
+        // Use ConfigureRemove to configure a "Remove" agumentation.
+        // From now on, the "Secret" property will always be removed from the response.
+        c.ConfigureRemove(nameof(Model1.Secret));
+
+        // Use ConfigureAdd to configure an "Add" augmentation.
+        // From now on, the "Image" property will always be added to the response.
+        c.ConfigureAdd("Image", (x, state) => $"/{x.Hash}/some/path");
+    });
+});
+```
+
+For a lot more options checkout the samples.
+
+## Advanced
+
+[TODO]
 
 # Samples
 Check out the samples under "samples/" for more practical use cases.
