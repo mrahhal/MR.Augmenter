@@ -57,6 +57,22 @@ namespace Basic.Controllers
 			return Ok(list);
 		}
 
+		[HttpGet("list2")]
+		public IActionResult GetList2()
+		{
+			var list = new[]
+			{
+				new ModelB() { Id = 1 },
+				new ModelB() { Id = 2 }
+			};
+
+			// Works with lists too.
+			return Ok(new
+			{
+				Models = list
+			});
+		}
+
 		[HttpGet("wrapper")]
 		public IActionResult GetWrapper()
 		{

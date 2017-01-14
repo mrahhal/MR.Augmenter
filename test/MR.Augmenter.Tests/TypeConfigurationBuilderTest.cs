@@ -166,7 +166,7 @@ namespace MR.Augmenter
 					p.Key.Should().BeOfType(typeof(TestModelNested));
 					p.Value.Should().Be(modelNestedTypeConfiguration);
 				});
-				var nestedNestedResult = nestedResult.Value.NestedTypeConfigurations.Should().HaveCount(1)
+				var nestedNestedResult = nestedResult.Value.TypeConfiguration.NestedTypeConfigurations.Should().HaveCount(1)
 					.And.Subject.First();
 				nestedNestedResult.Invoking(p =>
 				{
@@ -196,6 +196,26 @@ namespace MR.Augmenter
 				{
 					p.Key.Should().BeOfType(typeof(TestModelA));
 					p.Value.Should().Be(modelATypeConfiguration);
+				});
+			}
+
+			[Fact]
+			public void NestedEnumerable()
+			{
+				var modelATypeConfiguration = new TypeConfiguration(typeof(TestModelA));
+				var list = new List<TypeConfiguration>()
+				{
+					modelATypeConfiguration
+				};
+				var builder = new TypeConfigurationBuilder(list);
+				var anon = new { Models = new[] { new TestModelA(), new TestModelA() } };
+
+				var result = builder.Build(null, anon.GetType());
+
+				result.Should().NotBeNull();
+				result.NestedTypeConfigurations.First().Invoking(p =>
+				{
+					p.Value.Kind.Should().Be(NestedTypeConfigurationKind.Array);
 				});
 			}
 		}

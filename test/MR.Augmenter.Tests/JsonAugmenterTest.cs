@@ -106,6 +106,17 @@ namespace MR.Augmenter
 				var nestedNested = nested.Value<JObject>("Nested");
 				nestedNested.Value<string>("Foo").Should().Be("44");
 			}
+
+			[Fact]
+			public async Task Enumerable()
+			{
+				var model = new { Models = new[] { new TestModelWithNested(), new TestModelWithNested() } };
+
+				var result = await _fixture.AugmentAsync(model) as JObject;
+
+				result["Models"].Type.Should().Be(JTokenType.Array);
+				result["Models"].Value<JArray>().Should().HaveCount(2);
+			}
 		}
 
 		public class StateTest : JsonAugmenterTest

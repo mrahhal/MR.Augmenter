@@ -22,8 +22,8 @@ namespace MR.Augmenter
 		public List<TypeConfiguration> BaseTypeConfigurations { get; }
 			= new List<TypeConfiguration>();
 
-		public Dictionary<PropertyInfo, TypeConfiguration> NestedTypeConfigurations { get; }
-			= new Dictionary<PropertyInfo, TypeConfiguration>();
+		public Dictionary<PropertyInfo, NestedTypeConfigurationWrapper> NestedTypeConfigurations { get; }
+			= new Dictionary<PropertyInfo, NestedTypeConfigurationWrapper>();
 	}
 
 	public class TypeConfiguration<T> : TypeConfiguration

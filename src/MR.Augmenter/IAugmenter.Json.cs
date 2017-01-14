@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using IState = System.Collections.Generic.IReadOnlyDictionary<string, object>;
@@ -44,10 +45,29 @@ namespace MR.Augmenter
 			foreach (var nested in typeConfiguration.NestedTypeConfigurations)
 			{
 				var nestedObject = nested.Key.GetValue(obj);
-				foreach (var item in BuildList(nested.Value, null))
+				foreach (var item in BuildList(nested.Value.TypeConfiguration, null))
 				{
-					AugmentObject(nestedObject, (JObject)jobj[nested.Key.Name], item, state);
+					if (nested.Value.Kind == NestedTypeConfigurationKind.Object)
+					{
+						AugmentObject(nestedObject, (JObject)jobj[nested.Key.Name], item, state);
+					}
+					else
+					{
+						AugmentArray(nestedObject, (JArray)jobj[nested.Key.Name], item, state);
+					}
 				}
+			}
+		}
+
+		private void AugmentArray(object obj, JArray jArray, TypeConfiguration typeConfiguration, IState state)
+		{
+			var asEnumerable = obj as IEnumerable;
+			var i = 0;
+			foreach (var item in asEnumerable)
+			{
+				var jObj = (JObject)jArray[i];
+				AugmentObject(item, jObj, typeConfiguration, state);
+				i++;
 			}
 		}
 
