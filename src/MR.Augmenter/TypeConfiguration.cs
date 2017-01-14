@@ -13,6 +13,8 @@ namespace MR.Augmenter
 			Type = type;
 		}
 
+		public bool Built { get; internal set; }
+
 		public Type Type { get; }
 
 		internal List<Augment> Augments { get; } = new List<Augment>();

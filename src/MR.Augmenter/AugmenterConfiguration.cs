@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using MR.Augmenter.Internal;
 
 namespace MR.Augmenter
 {
@@ -46,33 +44,10 @@ namespace MR.Augmenter
 
 		private void BuildCore()
 		{
+			var builder = new TypeConfigurationBuilder(TypeConfigurations);
 			foreach (var typeConfiguration in TypeConfigurations)
 			{
-				var type = typeConfiguration.Type;
-
-				var baseTypeConfigurations = typeConfiguration.BaseTypeConfigurations;
-				var baseTypes = ReflectionHelper.IncludeBaseTypes(type);
-				foreach (var baseType in baseTypes)
-				{
-					var tc = TypeConfigurations.Where(t => t.Type == baseType).FirstOrDefault();
-					if (tc != null)
-					{
-						baseTypeConfigurations.Add(tc);
-					}
-				}
-
-				var properties = type.GetTypeInfo().DeclaredProperties;
-				foreach (var p in properties)
-				{
-					if (!ReflectionHelper.IsPrimitive(p.PropertyType))
-					{
-						var nestedTypeConfiguration = TypeConfigurations.FirstOrDefault(c => c.Type == p.PropertyType);
-						if (nestedTypeConfiguration != null)
-						{
-							typeConfiguration.NestedTypeConfigurations[p] = nestedTypeConfiguration;
-						}
-					}
-				}
+				builder.Build(typeConfiguration, typeConfiguration.Type);
 			}
 		}
 	}

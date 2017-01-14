@@ -17,7 +17,17 @@
 		public string Foo { get; set; } = "foo";
 	}
 
+	public class TestModelB2 : TestModelA
+	{
+		public TestModel1 Model1 { get; set; } = new TestModel1();
+	}
+
 	public class TestModelC : TestModelB
+	{
+		public string Bar { get; set; } = "bar";
+	}
+
+	public class TestModelC2 : TestModelB2
 	{
 		public string Bar { get; set; } = "bar";
 	}

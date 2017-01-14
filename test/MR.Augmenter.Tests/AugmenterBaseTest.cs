@@ -49,40 +49,6 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
-			public async Task ChecksComplexPropertiesAnywayForUnknownObjects()
-			{
-				var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
-				var model = new
-				{
-					Inner = new TestModelC()
-				};
-
-				await fixture.AugmentAsync(model);
-
-				fixture.Contexts.Should().HaveCount(1);
-			}
-
-			[Fact]
-			public async Task CorrectlySetsTypeConfigurationsForUnknownObjects()
-			{
-				var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
-				var model = new
-				{
-					Inner = new TestModelC()
-				};
-
-				await fixture.AugmentAsync(model);
-
-				var context = fixture.Contexts.First();
-				var tc = context.TypeConfiguration;
-				tc.Type.Should().Be(model.GetType());
-				var nested = tc.NestedTypeConfigurations.Should().HaveCount(1).And.Subject.First();
-				nested.Key.Name.Should().Be(nameof(model.Inner));
-				nested.Value.Type.Should().Be(typeof(TestModelC));
-				nested.Value.BaseTypeConfigurations.Should().NotBeEmpty();
-			}
-
-			[Fact]
 			public async Task PicksUpGlobalState()
 			{
 				var configuration = CreateCommonConfiguration();

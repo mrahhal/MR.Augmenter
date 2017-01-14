@@ -3,9 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using MR.Augmenter.Internal;
 
 namespace MR.Augmenter
 {
@@ -20,6 +18,8 @@ namespace MR.Augmenter
 		private IReadOnlyDictionary<string, object> _emptyDictionary =
 			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
 
+		private TypeConfigurationBuilder _builder;
+
 		public AugmenterBase(
 			AugmenterConfiguration configuration,
 			IServiceProvider services)
@@ -31,6 +31,7 @@ namespace MR.Augmenter
 
 			Configuration = configuration;
 			Services = services;
+			_builder = new TypeConfigurationBuilder(configuration.TypeConfigurations);
 		}
 
 		public AugmenterConfiguration Configuration { get; }
@@ -97,34 +98,7 @@ namespace MR.Augmenter
 
 				if (typeConfiguration == null)
 				{
-					var baseTypes = ReflectionHelper.IncludeBaseTypes(type);
-					foreach (var baseType in baseTypes)
-					{
-						var tc = Configuration.TypeConfigurations.Where(t2 => t2.Type == baseType).FirstOrDefault();
-						if (tc != null)
-						{
-							typeConfiguration = typeConfiguration ?? new TypeConfiguration(type);
-							typeConfiguration.BaseTypeConfigurations.Add(tc);
-						}
-					}
-
-					// Check if there are complex members anyway (as in the case of anon objects).
-					var properties = type.GetTypeInfo().DeclaredProperties;
-					foreach (var p in properties)
-					{
-						if (!ReflectionHelper.IsPrimitive(p.PropertyType))
-						{
-							var nestedType = p.PropertyType;
-							var nestedTypeConfiguration = Configuration.TypeConfigurations
-								.Where(c => nestedType == c.Type)
-								.FirstOrDefault();
-							if (nestedTypeConfiguration != null)
-							{
-								typeConfiguration = typeConfiguration ?? new TypeConfiguration(type);
-								typeConfiguration.NestedTypeConfigurations.Add(p, nestedTypeConfiguration);
-							}
-						}
-					}
+					typeConfiguration = _builder.Build(null, type);
 				}
 
 				return typeConfiguration;
