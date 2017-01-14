@@ -94,7 +94,7 @@ For a lot more options checkout the samples.
 [TODO]
 
 # Samples
-Check out the samples under "samples/" for more practical use cases.
+Check out the [`samples`](samples) under "samples/" for more practical use cases.
 
 #### [`Basic`](samples/Basic)
 Shows how to configure Augmenter in an Asp.Net core app with some practical examples.
