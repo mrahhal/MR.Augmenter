@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -27,21 +28,28 @@ namespace MR.Augmenter
 				}
 
 				var objectResult = context.Result as ObjectResult;
-				if (objectResult == null)
+				if (objectResult != null)
 				{
-					return next.Invoke();
+					return OnResultExecutionCoreAsync(context, next, objectResult.Value, v => objectResult.Value = v);
 				}
 
-				return OnResultExecutionCoreAsync(context, next, objectResult);
+				var jsonResult = context.Result as JsonResult;
+				if (jsonResult != null)
+				{
+					return OnResultExecutionCoreAsync(context, next, jsonResult.Value, v => jsonResult.Value = v);
+				}
+
+				return next.Invoke();
 			}
 
 			private async Task OnResultExecutionCoreAsync(
 				ResultExecutingContext context,
 				ResultExecutionDelegate next,
-				ObjectResult result)
+				object value,
+				Action<object> setResultObject)
 			{
-				var augmented = await _augmenter.AugmentAsync(result.Value);
-				result.Value = augmented;
+				var augmented = await _augmenter.AugmentAsync(value);
+				setResultObject(augmented);
 				await next.Invoke();
 			}
 		}

@@ -36,6 +36,17 @@ namespace MR.Augmenter
 			mockAugmenter.Verify(x => x.AugmentCore(), Times.Once);
 		}
 
+		[Fact]
+		public async Task WithJsonResult()
+		{
+			var mockAugmenter = MockAugmenter();
+			var result = new JsonResult(new TestModel());
+
+			await Execute(mockAugmenter, result);
+
+			mockAugmenter.Verify(x => x.AugmentCore(), Times.Once);
+		}
+
 		private Task Execute(Mock<AugmenterStub> mockAugmenter, IActionResult result)
 		{
 			var typeFilter = new AugmenterActionFilterAttribute();
