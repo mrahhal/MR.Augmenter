@@ -2,7 +2,7 @@
 
 namespace MR.Augmenter
 {
-	public class AugmenterWrapper
+	public abstract class AugmenterWrapper
 	{
 		public AugmenterWrapper(object obj)
 		{
@@ -11,13 +11,25 @@ namespace MR.Augmenter
 
 		public object Object { get; }
 
-		internal TypeConfiguration TypeConfiguration { get; private set; }
+		public TypeConfiguration TypeConfiguration { get; protected set; }
+	}
 
-		public void SetConfiguration<T>(Action<TypeConfiguration<T>> configure)
+	public class AugmenterWrapper<T> : AugmenterWrapper
+	{
+		public AugmenterWrapper(T obj)
+			: base(obj)
+		{
+		}
+
+		public new T Object => (T)base.Object;
+
+		public void SetConfiguration(Action<TypeConfiguration<T>> configure)
 		{
 			var typeConfiguration = new TypeConfiguration<T>();
 			configure(typeConfiguration);
 			TypeConfiguration = typeConfiguration;
 		}
+
+		public static AugmenterWrapper<T> Create(T obj) => new AugmenterWrapper<T>(obj);
 	}
 }

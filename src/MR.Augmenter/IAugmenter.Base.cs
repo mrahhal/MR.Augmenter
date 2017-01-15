@@ -155,52 +155,56 @@ namespace MR.Augmenter
 			Action<AugmentationContext, object> configure,
 			object configureState)
 		{
-			var isEnumerable = false;
-
-			Type typeParameter;
-			if (ReflectionHelper.IsEnumerableOrArrayType(type, out typeParameter))
+			var tiw = TypeInfoResolver.ResolveTypeInfo(type);
+			if (tiw == null)
 			{
-				isEnumerable = true;
-				type = typeParameter;
+				// Primitive type
+				return obj;
 			}
 
-			AugmenterWrapper wrapper = obj as AugmenterWrapper;
-			if (wrapper != null)
-			{
-				type = wrapper.Object.GetType();
-				obj = wrapper.Object;
-			}
-
-			var typeConfiguration = ResolveTypeConfiguration(type);
+			var typeConfiguration = ResolveTypeConfiguration(tiw.Type);
 
 			if (typeConfiguration == null && configure == null)
 			{
+				// No configuration
 				return obj;
 			}
 
 			var state = await CreateDictionaryAndAddStateAsync(addState);
 			var context = new AugmentationContext(obj, typeConfiguration, state);
 
-			if (wrapper != null)
+			if (tiw.IsArray)
 			{
-				context.EphemeralTypeConfiguration = wrapper.TypeConfiguration;
-			}
-
-			configure?.Invoke(context, configureState);
-
-			if (isEnumerable)
-			{
-				context.Type = type;
-
 				var asEnumerable = obj as IEnumerable;
 				var list = new List<object>();
 				foreach (var item in asEnumerable)
 				{
+					// We'll reuse the context.
 					context.Object = item;
-					list.Add(AugmentCore(context));
+					list.Add(AugmentOne(obj, configure, configureState, tiw, context));
 				}
 				return list;
 			}
+			else
+			{
+				return AugmentOne(obj, configure, configureState, tiw, context);
+			}
+		}
+
+		private object AugmentOne(
+			object obj,
+			Action<AugmentationContext, object> configure,
+			object configureState,
+			TypeInfoWrapper tiw,
+			AugmentationContext context)
+		{
+			if (tiw.IsWrapper)
+			{
+				context.Object = ((AugmenterWrapper)obj).Object;
+				context.EphemeralTypeConfiguration = ((AugmenterWrapper)obj).TypeConfiguration;
+			}
+
+			configure?.Invoke(context, configureState);
 
 			return AugmentCore(context);
 		}

@@ -12,14 +12,14 @@ namespace MR.Augmenter
 		public AugmentationContext(object obj, TypeConfiguration typeConfiguration, IReadOnlyDictionary<string, object> state)
 		{
 			Object = obj;
-			Type = obj.GetType();
+			//Type = obj.GetType();
 			TypeConfiguration = typeConfiguration;
 			State = state;
 		}
 
 		public object Object { get; internal set; }
 
-		public Type Type { get; internal set; }
+		public Type Type => TypeConfiguration.Type;
 
 		public TypeConfiguration TypeConfiguration { get; }
 

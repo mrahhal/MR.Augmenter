@@ -215,7 +215,7 @@ namespace MR.Augmenter
 				result.Should().NotBeNull();
 				result.NestedTypeConfigurations.First().Invoking(p =>
 				{
-					p.Value.Kind.Should().Be(NestedTypeConfigurationKind.Array);
+					p.Value.TypeInfoWrapper.IsArray.Should().Be(true);
 				});
 			}
 		}

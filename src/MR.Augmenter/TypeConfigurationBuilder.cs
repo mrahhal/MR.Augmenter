@@ -63,32 +63,16 @@ namespace MR.Augmenter
 			var properties = type.GetTypeInfo().DeclaredProperties;
 			foreach (var p in properties)
 			{
-				if (!ReflectionHelper.IsPrimitive(p.PropertyType))
+				var tiw = TypeInfoResolver.ResolveTypeInfo(p.PropertyType);
+				if (tiw != null)
 				{
-					var isArray = false;
-					Type elementType = p.PropertyType;
-					Type elementTypeOut;
-					if (ReflectionHelper.IsEnumerableOrArrayType(p.PropertyType, out elementTypeOut))
-					{
-						elementType = elementTypeOut;
-						isArray = true;
-					}
-
-					var nestedTypeConfiguration = _all.FirstOrDefault(c => c.Type == elementType);
-					var scoped = context.CreateScoped(nestedTypeConfiguration, elementType);
-					BuildOne(scoped, elementType);
+					var nestedTypeConfiguration = _all.FirstOrDefault(c => c.Type == tiw.Type);
+					var scoped = context.CreateScoped(nestedTypeConfiguration, tiw.Type);
+					BuildOne(scoped, tiw.Type);
 					if (!scoped.Empty)
 					{
 						context.EnsureCurrent();
-						NestedTypeConfigurationWrapper wrapper;
-						if (isArray)
-						{
-							wrapper = NestedTypeConfigurationWrapper.CreateArray(scoped.Current);
-						}
-						else
-						{
-							wrapper = NestedTypeConfigurationWrapper.CreateObject(scoped.Current);
-						}
+						var wrapper = new NestedTypeConfigurationWrapper(scoped.Current, tiw);
 						context.Current.NestedTypeConfigurations[p] = wrapper;
 					}
 				}

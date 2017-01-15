@@ -79,8 +79,8 @@ namespace Basic.Controllers
 			// You can use the special AugmenterWrapper to wrap your model with
 			// some configuration that will be used when doing the augmentation.
 			var model = new ModelB();
-			var wrapper = new AugmenterWrapper(model);
-			wrapper.SetConfiguration<ModelB>(c =>
+			var wrapper = new AugmenterWrapper<ModelB>(model);
+			wrapper.SetConfiguration(c =>
 			{
 				c.ConfigureAdd("Baz", (x, state) => x.Id);
 			});

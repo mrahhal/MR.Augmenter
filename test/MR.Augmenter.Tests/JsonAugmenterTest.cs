@@ -108,7 +108,7 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
-			public async Task Enumerable()
+			public async Task Array()
 			{
 				var model = new { Models = new[] { new TestModelWithNested(), new TestModelWithNested() } };
 
@@ -116,6 +116,40 @@ namespace MR.Augmenter
 
 				result["Models"].Type.Should().Be(JTokenType.Array);
 				result["Models"].Value<JArray>().Should().HaveCount(2);
+			}
+
+			[Fact(Skip = "Non root wrappers don't work yet.")]
+			public async Task Wrapper()
+			{
+				var model = new
+				{
+					Model = new AugmenterWrapper<TestModelWithNested>(new TestModelWithNested() { Id = 42 })
+				};
+
+				var result = await _fixture.AugmentAsync(model) as JObject;
+
+				result["Model"].Value<JObject>().Should().HaveCount(2);
+				result["Model"].Value<JObject>().Value<int>("Id").Should().Be(42);
+			}
+
+			[Fact(Skip = "Non root wrappers don't work yet.")]
+			public async Task ArrayAndWrapper()
+			{
+				var model = new
+				{
+					Models = new[]
+					{
+						new AugmenterWrapper<TestModelWithNested>(new TestModelWithNested() { Id = 42 }),
+						new AugmenterWrapper<TestModelWithNested>(new TestModelWithNested() { Id = 43 })
+					}
+				};
+
+				var result = await _fixture.AugmentAsync(model) as JObject;
+
+				result["Models"].Type.Should().Be(JTokenType.Array);
+				result["Models"].Value<JArray>().Should().HaveCount(2);
+				result["Models"].Value<JArray>()[0].Value<JObject>().Value<int>("Id").Should().Be(42);
+				result["Models"].Value<JArray>()[1].Value<JObject>().Value<int>("Id").Should().Be(43);
 			}
 		}
 

@@ -151,8 +151,8 @@ namespace MR.Augmenter
 				{
 					var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
 					var model = new TestModel1();
-					var wrapper = new AugmenterWrapper(model);
-					wrapper.SetConfiguration<TestModel1>(c =>
+					var wrapper = new AugmenterWrapper<TestModel1>(model);
+					wrapper.SetConfiguration(c =>
 					{
 						c.ConfigureAdd("Baz", (x, state) => x.Id);
 					});
