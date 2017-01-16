@@ -140,5 +140,13 @@ namespace Basic.Controllers
 				Formatting = Formatting.Indented
 			});
 		}
+
+		[HttpGet("n1")]
+		public IActionResult GetN1()
+		{
+			var model = new ModelU2();
+
+			return Ok(model);
+		}
 	}
 }

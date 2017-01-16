@@ -145,6 +145,25 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
+			public void CollectsBaseTypesRegardlessOfTheirConfiguration()
+			{
+				var modelCTypeConfiguration = new TypeConfiguration(typeof(TestModelC));
+				var list = new List<TypeConfiguration>
+				{
+					modelCTypeConfiguration
+				};
+				var builder = new TypeConfigurationBuilder(list);
+
+				var result = builder.Build(modelCTypeConfiguration, typeof(TestModelC));
+
+				var baseTypeConfigurations = result.BaseTypeConfigurations.Should().HaveCount(2).And.Subject;
+				baseTypeConfigurations.ElementAt(0).Type.Should().Be(typeof(TestModelA));
+				baseTypeConfigurations.ElementAt(0).Properties.Should().HaveCount(1);
+				baseTypeConfigurations.ElementAt(1).Type.Should().Be(typeof(TestModelB));
+				baseTypeConfigurations.ElementAt(1).Properties.Should().HaveCount(1);
+			}
+
+			[Fact]
 			public void CollectsAllProperties()
 			{
 				var modelWithNestedTypeConfiguration = new TypeConfiguration(typeof(TestModelWithNested));

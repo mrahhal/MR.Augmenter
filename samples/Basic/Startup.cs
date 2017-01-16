@@ -72,6 +72,8 @@ namespace Basic
 				// A model like this a bit unlikely so you don't need to bother.
 				config.Configure<Model1>(c => { });
 				config.Configure<ModelSome>(c => { });
+
+				config.Configure<ModelU2>(c => { });
 			});
 
 			services.AddAugmenterForMvc();

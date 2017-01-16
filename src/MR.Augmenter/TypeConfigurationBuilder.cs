@@ -51,7 +51,7 @@ namespace MR.Augmenter
 				if (tc != null)
 				{
 					context.EnsureCurrent();
-					context.Current.BaseTypeConfigurations.Add(tc);
+					context.AddBaseTypeConfiguration(tc);
 				}
 				else
 				{
@@ -60,7 +60,11 @@ namespace MR.Augmenter
 					if (!scoped.Empty)
 					{
 						context.EnsureCurrent();
-						context.Current.BaseTypeConfigurations.Add(scoped.Current);
+						context.AddBaseTypeConfiguration(scoped.Current);
+					}
+					else
+					{
+						context.AddBaseTypeConfiguration(CreateConfigurationWithPropertiesOnly(baseType));
 					}
 				}
 			}
@@ -98,8 +102,21 @@ namespace MR.Augmenter
 			}
 		}
 
+		private TypeConfiguration CreateConfigurationWithPropertiesOnly(Type baseType)
+		{
+			var tc = new TypeConfiguration(baseType);
+			foreach (var pi in baseType.GetTypeInfo().DeclaredProperties)
+			{
+				tc.Properties.Add(
+					new APropertyInfo(pi, TypeInfoResolver.ResolveTypeInfo(pi.PropertyType), null));
+			}
+			return tc;
+		}
+
 		private class Context
 		{
+			private List<TypeConfiguration> _typeConfigurations = new List<TypeConfiguration>();
+
 			private Context()
 			{
 			}
@@ -120,8 +137,31 @@ namespace MR.Augmenter
 
 			public void EnsureCurrent()
 			{
-				Current = Current ?? new TypeConfiguration(Type);
+				if (Current != null)
+				{
+					Current.Built = true;
+				}
+
+				if (!Empty)
+				{
+					return;
+				}
+
+				Current = new TypeConfiguration(Type);
 				Current.Built = true;
+				Current.BaseTypeConfigurations.AddRange(_typeConfigurations);
+			}
+
+			public void AddBaseTypeConfiguration(TypeConfiguration tc)
+			{
+				if (Empty)
+				{
+					_typeConfigurations.Add(tc);
+				}
+				else
+				{
+					Current.BaseTypeConfigurations.Add(tc);
+				}
 			}
 
 			public Context CreateScoped(TypeConfiguration current, Type type)
