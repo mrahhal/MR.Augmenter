@@ -1,4 +1,18 @@
 issue-labels-include:
-- Bug
-- Feature
-- Enhancement
+- bug
+- feature
+- enhancement
+
+issue-labels-exclude:
+- internal
+
+issue-labels-alias:
+- name:   bug
+  header: Bug
+  plural: Bugs
+- name:   feature
+  header: Feature
+  plural: Features
+- name:   enhancement
+  header: Enhancement
+  plural: Enhancements
