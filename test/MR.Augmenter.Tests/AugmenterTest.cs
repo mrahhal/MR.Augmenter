@@ -1,32 +1,33 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
+using AArray = System.Collections.Generic.List<object>;
+using AObject = System.Collections.Generic.Dictionary<string, object>;
 
 namespace MR.Augmenter
 {
-	public class JsonAugmenterTest : TestHost
+	public class AugmenterTest : TestHost
 	{
 		private AugmenterConfiguration _configuration;
-		private JsonAugmenter _fixture;
+		private Augmenter _fixture;
 
-		public JsonAugmenterTest()
+		public AugmenterTest()
 		{
 			_configuration = CreateCommonConfiguration();
-			_fixture = MocksHelper.JsonAugmenter(_configuration);
+			_fixture = MocksHelper.Augmenter(_configuration);
 		}
 
-		public class BasicTest : JsonAugmenterTest
+		public class BasicTest : AugmenterTest
 		{
 			[Fact]
 			public async Task Basic()
 			{
 				var model = new TestModel1();
 
-				var result = await _fixture.AugmentAsync(model) as JObject;
+				var result = await _fixture.AugmentAsync(model) as AObject;
 
-				result["Bar"].Value<string>().Should().Be($"({model.Id})");
-				result[nameof(TestModel1.Some)].Should().BeNull();
+				((string)result["Bar"]).Should().Be($"({model.Id})");
+				result.Should().NotContainKey(nameof(TestModel1.Some));
 			}
 
 			[Fact]
@@ -37,11 +38,11 @@ namespace MR.Augmenter
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
 					c.ConfigureAdd("Baz", (_, __) => 2);
-				}) as JObject;
+				}) as AObject;
 
-				result["Bar"].Value<string>().Should().Be($"({model.Id})");
-				result["Baz"].Value<int>().Should().Be(2);
-				result[nameof(TestModel1.Some)].Should().BeNull();
+				result["Bar"].Cast<string>().Should().Be($"({model.Id})");
+				result["Baz"].Cast<int>().Should().Be(2);
+				result.Should().NotContainKey(nameof(TestModel1.Some));
 			}
 
 			[Fact]
@@ -52,9 +53,9 @@ namespace MR.Augmenter
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
 					c.ConfigureAdd("Some", (_, __) => AugmentationValue.Ignore);
-				}) as JObject;
+				}) as AObject;
 
-				result["Some"].Should().BeNull();
+				result.Should().NotContainKey("Some");
 			}
 
 			[Fact]
@@ -65,17 +66,18 @@ namespace MR.Augmenter
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
 					c.ConfigureRemove(nameof(TestModel1.Foo), (_, __) => AugmentationValue.Ignore);
-				}) as JObject;
+				}) as AObject;
 
-				result.Value<string>(nameof(TestModel1.Foo)).Should().Be("foo");
+				result[nameof(TestModel1.Foo)].Cast<string>().Should().Be("foo");
 			}
 		}
 
-		public class NestedTest : JsonAugmenterTest
+		public class NestedTest : AugmenterTest
 		{
 			public NestedTest()
 			{
 				_configuration = new AugmenterConfiguration();
+				_configuration.Configure<TestModel1>(c => { });
 				_configuration.Configure<TestModelWithNested>(c =>
 				{
 					c.ConfigureAdd("Foo", (_, __) => "42");
@@ -90,7 +92,7 @@ namespace MR.Augmenter
 				});
 
 				_configuration.Build();
-				_fixture = MocksHelper.JsonAugmenter(_configuration);
+				_fixture = MocksHelper.Augmenter(_configuration);
 			}
 
 			[Fact]
@@ -98,13 +100,14 @@ namespace MR.Augmenter
 			{
 				var model = new TestModelWithNested();
 
-				var result = await _fixture.AugmentAsync(model) as JObject;
+				var result = await _fixture.AugmentAsync(model) as AObject;
 
-				result.Value<string>("Foo").Should().Be("42");
-				var nested = result.Value<JObject>("Nested");
-				nested.Value<string>("Foo").Should().Be("43");
-				var nestedNested = nested.Value<JObject>("Nested");
-				nestedNested.Value<string>("Foo").Should().Be("44");
+				result["Foo"].Cast<string>().Should().Be("42");
+				var nested = result["Nested"].Cast<AObject>();
+
+				nested["Foo"].Cast<string>().Should().Be("43");
+				var nestedNested = nested["Nested"].Cast<AObject>();
+				nestedNested["Foo"].Cast<string>().Should().Be("44");
 			}
 
 			[Fact]
@@ -112,53 +115,68 @@ namespace MR.Augmenter
 			{
 				var model = new { Models = new[] { new TestModelWithNested(), new TestModelWithNested() } };
 
-				var result = await _fixture.AugmentAsync(model) as JObject;
+				var result = await _fixture.AugmentAsync(model) as AObject;
 
-				result["Models"].Type.Should().Be(JTokenType.Array);
-				result["Models"].Value<JArray>().Should().HaveCount(2);
+				result["Models"].GetType().Should().Be(typeof(AArray));
+				result["Models"].Cast<AArray>().Should().HaveCount(2);
 			}
 
-			[Fact(Skip = "Non root wrappers don't work yet.")]
+			[Fact]
+			public async Task HandlesNullComplex()
+			{
+				var model = new TestModelForWrapping() { Id = 42, Model = null };
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				result["Model"].Should().BeNull();
+			}
+
+			[Fact]
 			public async Task Wrapper()
 			{
 				var model = new
 				{
-					Model = new AugmenterWrapper<TestModelWithNested>(new TestModelWithNested() { Id = 42 })
+					Model = new AugmenterWrapper<TestModelForWrapping>(
+						new TestModelForWrapping() { Id = 42, Model = new TestModel1() })
 				};
 
-				var result = await _fixture.AugmentAsync(model) as JObject;
+				var result = await _fixture.AugmentAsync(model) as AObject;
 
-				result["Model"].Value<JObject>().Should().HaveCount(2);
-				result["Model"].Value<JObject>().Value<int>("Id").Should().Be(42);
+				result["Model"].Cast<AObject>().Should().HaveCount(3);
+				result["Model"].Cast<AObject>()["Id"].Cast<int>().Should().Be(42);
+				result["Model"].Cast<AObject>()["Model"].Cast<AObject>()["Id"].Cast<int>().Should().Be(42);
 			}
 
-			[Fact(Skip = "Non root wrappers don't work yet.")]
+			[Fact]
 			public async Task ArrayAndWrapper()
 			{
 				var model = new
 				{
 					Models = new[]
 					{
-						new AugmenterWrapper<TestModelWithNested>(new TestModelWithNested() { Id = 42 }),
-						new AugmenterWrapper<TestModelWithNested>(new TestModelWithNested() { Id = 43 })
+						new AugmenterWrapper<TestModelForWrapping>(
+							new TestModelForWrapping() { Id = 42, Model = new TestModel1() }),
+						new AugmenterWrapper<TestModelForWrapping>(
+							new TestModelForWrapping() { Id = 43, Model = new TestModel1() })
 					}
 				};
 
-				var result = await _fixture.AugmentAsync(model) as JObject;
+				var result = await _fixture.AugmentAsync(model) as AObject;
 
-				result["Models"].Type.Should().Be(JTokenType.Array);
-				result["Models"].Value<JArray>().Should().HaveCount(2);
-				result["Models"].Value<JArray>()[0].Value<JObject>().Value<int>("Id").Should().Be(42);
-				result["Models"].Value<JArray>()[1].Value<JObject>().Value<int>("Id").Should().Be(43);
+				result["Models"].GetType().Should().Be(typeof(AArray));
+				var list = result["Models"] as AArray;
+				list.Should().HaveCount(2);
+				list[0].Cast<AObject>()["Id"].Cast<int>().Should().Be(42);
+				list[1].Cast<AObject>()["Id"].Cast<int>().Should().Be(43);
 			}
 		}
 
-		public class StateTest : JsonAugmenterTest
+		public class StateTest : AugmenterTest
 		{
 			public StateTest()
 			{
 				_configuration = CreateBuiltConfiguration();
-				_fixture = MocksHelper.JsonAugmenter(_configuration);
+				_fixture = MocksHelper.Augmenter(_configuration);
 			}
 
 			[Fact]
@@ -175,14 +193,14 @@ namespace MR.Augmenter
 					});
 				});
 				_configuration.Build();
-				_fixture = MocksHelper.JsonAugmenter(_configuration);
+				_fixture = MocksHelper.Augmenter(_configuration);
 
 				var result = await _fixture.AugmentAsync(model, addState: state =>
 				{
 					state.Add("key", "bar");
-				}) as JObject;
+				}) as AObject;
 
-				result.Value<string>("Bar").Should().Be("bar");
+				result["Bar"].Cast<string>().Should().Be("bar");
 			}
 
 			[Fact]
@@ -199,9 +217,9 @@ namespace MR.Augmenter
 				}, state =>
 				{
 					state.Add("key", "bar");
-				}) as JObject;
+				}) as AObject;
 
-				result.Value<string>("Bar").Should().Be("bar");
+				result["Bar"].Cast<string>().Should().Be("bar");
 			}
 
 			[Fact]
@@ -219,14 +237,14 @@ namespace MR.Augmenter
 					});
 				});
 				_configuration.Build();
-				_fixture = MocksHelper.JsonAugmenter(_configuration);
+				_fixture = MocksHelper.Augmenter(_configuration);
 
 				var result = await _fixture.AugmentAsync(model, addState: state =>
 				{
 					state.Add("key", "foo");
-				}) as JObject;
+				}) as AObject;
 
-				result.Value<JObject>("Nested").Value<string>("Foo").Should().Be("foo");
+				result["Nested"].Cast<AObject>()["Foo"].Cast<string>().Should().Be("foo");
 			}
 
 			[Fact]
@@ -247,9 +265,9 @@ namespace MR.Augmenter
 				}, state =>
 				{
 					state.Add("key", false);
-				}) as JObject;
+				}) as AObject;
 
-				result["Bar"].Should().BeNull();
+				result.Should().NotContainKey("Bar");
 			}
 		}
 	}

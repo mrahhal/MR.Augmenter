@@ -9,7 +9,7 @@ namespace MR.Augmenter
 			this IServiceCollection services,
 			Action<AugmenterConfiguration> configure)
 		{
-			services.AddScoped<IAugmenter, JsonAugmenter>();
+			services.AddScoped<IAugmenter, Augmenter>();
 
 			var configuration = new AugmenterConfiguration();
 			configure(configuration);

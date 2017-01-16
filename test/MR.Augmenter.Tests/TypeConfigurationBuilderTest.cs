@@ -41,7 +41,7 @@ namespace MR.Augmenter
 		{
 			var list = new List<TypeConfiguration>();
 			var builder = new TypeConfigurationBuilder(list);
-			var anon = new { Foo = "foo" };
+			var anon = new { Foo = "foo", Model = new TestModel1() };
 
 			var result = builder.Build(null, anon.GetType());
 
@@ -145,6 +145,81 @@ namespace MR.Augmenter
 			}
 
 			[Fact]
+			public void CollectsAllProperties()
+			{
+				var modelWithNestedTypeConfiguration = new TypeConfiguration(typeof(TestModelWithNested));
+				var modelNestedTypeConfiguration = new TypeConfiguration(typeof(TestModelNested));
+				var list = new List<TypeConfiguration>
+				{
+					modelWithNestedTypeConfiguration,
+					modelNestedTypeConfiguration
+				};
+				var builder = new TypeConfigurationBuilder(list);
+
+				var result = builder.Build(modelWithNestedTypeConfiguration, typeof(TestModelWithNested));
+				result.Properties.Should().HaveCount(4);
+				result.Properties.Should()
+					.ContainSingle(p => p.PropertyInfo.Name == nameof(TestModelWithNested.Id) && p.Type == typeof(int)).And
+					.ContainSingle(p => p.PropertyInfo.Name == nameof(TestModelWithNested.Some1) && p.Type == typeof(string)).And
+					.ContainSingle(p => p.PropertyInfo.Name == nameof(TestModelWithNested.Some2) && p.Type == typeof(string));
+			}
+
+			[Fact]
+			public void CorrectlyResolvesPrimitiveLists()
+			{
+				var modelPrimitiveCollectionTypeConfiguration = new TypeConfiguration(typeof(TestModelWithPrimitiveList));
+				var list = new List<TypeConfiguration>
+				{
+					modelPrimitiveCollectionTypeConfiguration
+				};
+				var builder = new TypeConfigurationBuilder(list);
+
+				var result = builder.Build(modelPrimitiveCollectionTypeConfiguration, typeof(TestModelWithPrimitiveList));
+				result.Properties.Should().HaveCount(1);
+				result.Properties.Should()
+					.ContainSingle(p =>
+						p.PropertyInfo.Name == nameof(TestModelWithPrimitiveList.Strings) &&
+						p.TypeInfoWrapper.IsArray &&
+						p.TypeConfiguration == null &&
+						p.Type == typeof(string));
+			}
+
+			[Fact]
+			public void CorrectlyResolvesRawComplexTypes()
+			{
+				var modelNestedTypeConfiguration = new TypeConfiguration(typeof(TestModelNested));
+				var list = new List<TypeConfiguration>
+				{
+					modelNestedTypeConfiguration
+				};
+				var builder = new TypeConfigurationBuilder(list);
+
+				var result = builder.Build(modelNestedTypeConfiguration, typeof(TestModelNested));
+
+				result.Properties.Should()
+					.ContainSingle(p => p.PropertyInfo.Name == nameof(TestModelNested.Id)).And
+					.ContainSingle(p =>
+						p.PropertyInfo.Name == nameof(TestModelNested.Nested) &&
+						p.TypeConfiguration == null);
+			}
+
+			[Fact]
+			public void CollectsOnlyDeclaredProperties()
+			{
+				var modelBTypeConfiguration = new TypeConfiguration(typeof(TestModelB));
+				var list = new List<TypeConfiguration>()
+				{
+					modelBTypeConfiguration
+				};
+				var builder = new TypeConfigurationBuilder(list);
+
+				var result = builder.Build(modelBTypeConfiguration, typeof(TestModelB));
+
+				var prop = result.Properties.Should().HaveCount(1).And.Subject.First();
+				prop.PropertyInfo.Name.Should().Be(nameof(TestModelB.Foo));
+			}
+
+			[Fact]
 			public void CollectsNestedTypes()
 			{
 				var modelWithNestedTypeConfiguration = new TypeConfiguration(typeof(TestModelWithNested));
@@ -160,19 +235,11 @@ namespace MR.Augmenter
 
 				var result = builder.Build(modelWithNestedTypeConfiguration, typeof(TestModelWithNested));
 
-				var nestedResult = result.NestedTypeConfigurations.Should().HaveCount(1).And.Subject.First();
-				nestedResult.Invoking(p =>
-				{
-					p.Key.Should().BeOfType(typeof(TestModelNested));
-					p.Value.Should().Be(modelNestedTypeConfiguration);
-				});
-				var nestedNestedResult = nestedResult.Value.TypeConfiguration.NestedTypeConfigurations.Should().HaveCount(1)
-					.And.Subject.First();
-				nestedNestedResult.Invoking(p =>
-				{
-					p.Key.Should().BeOfType(typeof(TestModelNestedNested));
-					p.Value.Should().Be(modelNestedNestedTypeConfiguration);
-				});
+				var nested = result.Properties.Single(p => p.Type == typeof(TestModelNested));
+				nested.TypeConfiguration.Should().Be(modelNestedTypeConfiguration);
+
+				var nestedNested = nested.TypeConfiguration.Properties.Single(p => p.Type == typeof(TestModelNestedNested));
+				nestedNested.TypeConfiguration.Should().Be(modelNestedNestedTypeConfiguration);
 			}
 		}
 
@@ -190,13 +257,10 @@ namespace MR.Augmenter
 				var anon = new { Model = new TestModelA() };
 
 				var result = builder.Build(null, anon.GetType());
-
 				result.Should().NotBeNull();
-				result.NestedTypeConfigurations.First().Invoking(p =>
-				{
-					p.Key.Should().BeOfType(typeof(TestModelA));
-					p.Value.Should().Be(modelATypeConfiguration);
-				});
+
+				var nested = result.Properties.Single(p => p.Type == typeof(TestModelA));
+				nested.TypeConfiguration.Should().Be(modelATypeConfiguration);
 			}
 
 			[Fact]
@@ -211,12 +275,10 @@ namespace MR.Augmenter
 				var anon = new { Models = new[] { new TestModelA(), new TestModelA() } };
 
 				var result = builder.Build(null, anon.GetType());
-
 				result.Should().NotBeNull();
-				result.NestedTypeConfigurations.First().Invoking(p =>
-				{
-					p.Value.TypeInfoWrapper.IsArray.Should().Be(true);
-				});
+
+				var nested = result.Properties.Single(p => p.Type == typeof(TestModelA));
+				nested.TypeInfoWrapper.IsArray.Should().Be(true);
 			}
 		}
 	}

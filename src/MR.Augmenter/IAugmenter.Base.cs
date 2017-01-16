@@ -156,9 +156,8 @@ namespace MR.Augmenter
 			object configureState)
 		{
 			var tiw = TypeInfoResolver.ResolveTypeInfo(type);
-			if (tiw == null)
+			if (tiw.IsPrimitive)
 			{
-				// Primitive type
 				return obj;
 			}
 

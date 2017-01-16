@@ -17,7 +17,6 @@ namespace MR.Augmenter
 				c.ConfigureAdd("Bar", (x, _) => $"({x.Id})");
 				c.ConfigureRemove(nameof(TestModel1.Some));
 			});
-
 			configuration.Configure<TestModelA>(c =>
 			{
 				c.ConfigureAdd("Id2", (x, _) => $"{x.Id}2");

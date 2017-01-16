@@ -7,11 +7,11 @@ namespace MR.Augmenter.Internal
 	public class TypeInfoResolverTest
 	{
 		[Fact]
-		public void Primitive_ReturnsNull()
+		public void Primitive()
 		{
 			var result = TypeInfoResolver.ResolveTypeInfo(typeof(int));
 
-			result.Should().BeNull();
+			result.IsPrimitive.Should().BeTrue();
 		}
 
 		[Fact]

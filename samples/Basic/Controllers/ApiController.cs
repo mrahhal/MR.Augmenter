@@ -1,6 +1,8 @@
 ﻿using Basic.Models;
 using Microsoft.AspNetCore.Mvc;
 using MR.Augmenter;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Basic.Controllers
 {
@@ -86,6 +88,57 @@ namespace Basic.Controllers
 			});
 
 			return Ok(wrapper);
+		}
+
+		[HttpGet("wrapper-nested")]
+		public IActionResult GetWrapperNested()
+		{
+			// You can use the special AugmenterWrapper to wrap your model with
+			// some configuration that will be used when doing the augmentation.
+			var model = new ModelB();
+			var wrapper = new AugmenterWrapper<ModelB>(model);
+			wrapper.SetConfiguration(c =>
+			{
+				c.ConfigureAdd("Baz", (x, state) => x.Id);
+			});
+
+			return Ok(new
+			{
+				Model = wrapper
+			});
+		}
+
+		[HttpGet("complex")]
+		public IActionResult GetComplex()
+		{
+			var model = new ModelC();
+
+			return Ok(model);
+		}
+
+		[HttpGet("camel")]
+		public IActionResult GetCamel()
+		{
+			// Json options will be honored.
+			var model = new ModelB();
+
+			return Json(model, new JsonSerializerSettings()
+			{
+				ContractResolver = new CamelCasePropertyNamesContractResolver(),
+				Formatting = Formatting.Indented
+			});
+		}
+
+		[HttpGet("camel-complex")]
+		public IActionResult GetCamelComplex()
+		{
+			var model = new ModelC();
+
+			return Json(model, new JsonSerializerSettings()
+			{
+				ContractResolver = new CamelCasePropertyNamesContractResolver(),
+				Formatting = Formatting.Indented
+			});
 		}
 	}
 }

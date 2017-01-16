@@ -27,6 +27,11 @@ namespace MR.Augmenter
 				throw new ArgumentException("type should be the same as typeConfiguration.Type.");
 			}
 
+			if (ReflectionHelper.IsPrimitive(type))
+			{
+				return null;
+			}
+
 			var context = new Context(typeConfiguration, type);
 			BuildOne(context, type);
 			return context.Current;
@@ -64,7 +69,12 @@ namespace MR.Augmenter
 			foreach (var p in properties)
 			{
 				var tiw = TypeInfoResolver.ResolveTypeInfo(p.PropertyType);
-				if (tiw != null)
+
+				if (tiw.IsPrimitive)
+				{
+					context.Properties.Add(new APropertyInfo(p, tiw, null));
+				}
+				else
 				{
 					var nestedTypeConfiguration = _all.FirstOrDefault(c => c.Type == tiw.Type);
 					var scoped = context.CreateScoped(nestedTypeConfiguration, tiw.Type);
@@ -72,10 +82,19 @@ namespace MR.Augmenter
 					if (!scoped.Empty)
 					{
 						context.EnsureCurrent();
-						var wrapper = new NestedTypeConfigurationWrapper(scoped.Current, tiw);
-						context.Current.NestedTypeConfigurations[p] = wrapper;
+						context.Properties.Add(new APropertyInfo(p, tiw, scoped.Current));
+					}
+					else
+					{
+						context.Properties.Add(new APropertyInfo(p, tiw, null));
 					}
 				}
+			}
+
+			if (!context.Empty)
+			{
+				context.EnsureCurrent();
+				context.Current.Properties.AddRange(context.Properties);
 			}
 		}
 
@@ -90,6 +109,8 @@ namespace MR.Augmenter
 				Current = current;
 				Type = type;
 			}
+
+			public List<APropertyInfo> Properties { get; private set; } = new List<APropertyInfo>();
 
 			public TypeConfiguration Current { get; private set; }
 

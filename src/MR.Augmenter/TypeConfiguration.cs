@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace MR.Augmenter
 {
-	[DebuggerDisplay("Augments: {Augments.Count}, Base: {BaseTypeConfigurations.Count}, Nested: {NestedTypeConfigurations.Count}")]
+	[DebuggerDisplay("Augments: {Augments.Count}, Base: {BaseTypeConfigurations.Count}, Properties: {Properties.Count}")]
 	public class TypeConfiguration
 	{
 		public TypeConfiguration(Type type)
@@ -13,15 +12,15 @@ namespace MR.Augmenter
 			Type = type;
 		}
 
-		public bool Built { get; internal set; }
-
 		public Type Type { get; }
+
+		public bool Built { get; internal set; }
 
 		internal List<Augment> Augments { get; } = new List<Augment>();
 
-		public List<TypeConfiguration> BaseTypeConfigurations { get; } = new List<TypeConfiguration>();
+		internal List<TypeConfiguration> BaseTypeConfigurations { get; } = new List<TypeConfiguration>();
 
-		public Dictionary<PropertyInfo, NestedTypeConfigurationWrapper> NestedTypeConfigurations { get; } = new Dictionary<PropertyInfo, NestedTypeConfigurationWrapper>();
+		internal List<APropertyInfo> Properties { get; } = new List<APropertyInfo>();
 	}
 
 	public class TypeConfiguration<T> : TypeConfiguration

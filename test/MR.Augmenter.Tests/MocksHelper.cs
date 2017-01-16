@@ -35,13 +35,13 @@ namespace MR.Augmenter
 			return For<FakeAugmenterBase>(provider);
 		}
 
-		public static JsonAugmenter JsonAugmenter(AugmenterConfiguration configuration)
+		public static Augmenter Augmenter(AugmenterConfiguration configuration)
 		{
 			var services = new ServiceCollection();
 			services.AddSingleton(configuration);
-			services.AddSingleton<JsonAugmenter>();
+			services.AddSingleton<Augmenter>();
 			var provider = services.BuildServiceProvider();
-			return For<JsonAugmenter>(provider);
+			return For<Augmenter>(provider);
 		}
 	}
 }

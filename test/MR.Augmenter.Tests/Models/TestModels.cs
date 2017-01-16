@@ -1,4 +1,6 @@
-﻿namespace MR.Augmenter
+﻿using System.Collections.Generic;
+
+namespace MR.Augmenter
 {
 	public class TestModel1
 	{
@@ -32,9 +34,18 @@
 		public string Bar { get; set; } = "bar";
 	}
 
+	public class TestModelForWrapping
+	{
+		public int Id { get; set; }
+		public string Some { get; set; }
+		public TestModel1 Model { get; set; }
+	}
+
 	public class TestModelWithNested
 	{
 		public int Id { get; set; } = 42;
+		public string Some1 { get; set; } = "43";
+		public string Some2 { get; set; } = "44";
 		public TestModelNested Nested { get; set; } = new TestModelNested();
 	}
 
@@ -47,5 +58,10 @@
 	public class TestModelNestedNested
 	{
 		public int Id { get; set; } = 44;
+	}
+
+	public class TestModelWithPrimitiveList
+	{
+		public List<string> Strings { get; set; } = new List<string>();
 	}
 }
