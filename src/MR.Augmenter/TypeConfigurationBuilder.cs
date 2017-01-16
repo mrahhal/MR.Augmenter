@@ -78,6 +78,13 @@ namespace MR.Augmenter
 				{
 					context.Properties.Add(new APropertyInfo(p, tiw, null));
 				}
+				else if (tiw.Type == type)
+				{
+					// Detect self referencing type.
+
+					context.EnsureCurrent();
+					context.Properties.Add(new APropertyInfo(p, tiw, context.Current));
+				}
 				else
 				{
 					var nestedTypeConfiguration = _all.FirstOrDefault(c => c.Type == tiw.Type);

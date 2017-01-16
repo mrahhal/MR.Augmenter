@@ -64,4 +64,16 @@ namespace MR.Augmenter
 	{
 		public List<string> Strings { get; set; } = new List<string>();
 	}
+
+	public class TestModelSelfReferencing
+	{
+		public int Id { get; set; } = 42;
+		public TestModelSelfReferencing Model { get; set; }
+	}
+
+	public class TestModelSelfReferencingArray
+	{
+		public int Id { get; set; } = 42;
+		public List<TestModelSelfReferencingArray> Children { get; set; }
+	}
 }

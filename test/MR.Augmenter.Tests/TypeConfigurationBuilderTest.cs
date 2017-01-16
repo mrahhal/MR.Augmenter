@@ -83,6 +83,39 @@ namespace MR.Augmenter
 			modelBTypeConfiguration.BaseTypeConfigurations.Should().HaveCount(1);
 		}
 
+		[Fact]
+		public void DetectsSelfReferencing()
+		{
+			var modelTypeConfiguration = new TypeConfiguration<TestModelSelfReferencing>();
+			modelTypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			var list = new List<TypeConfiguration>
+			{
+				modelTypeConfiguration
+			};
+			var builder = new TypeConfigurationBuilder(list);
+			var result = builder.Build(modelTypeConfiguration, typeof(TestModelSelfReferencing));
+
+			modelTypeConfiguration.Properties.Should().HaveCount(2);
+			modelTypeConfiguration.Properties[1].TypeConfiguration.Should().Be(modelTypeConfiguration);
+		}
+
+		[Fact]
+		public void DetectsSelfReferencingArray()
+		{
+			var modelTypeConfiguration = new TypeConfiguration<TestModelSelfReferencingArray>();
+			modelTypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			var list = new List<TypeConfiguration>
+			{
+				modelTypeConfiguration
+			};
+			var builder = new TypeConfigurationBuilder(list);
+			var result = builder.Build(modelTypeConfiguration, typeof(TestModelSelfReferencingArray));
+
+			modelTypeConfiguration.Properties.Should().HaveCount(2);
+			modelTypeConfiguration.Properties[1].TypeConfiguration.Should().Be(modelTypeConfiguration);
+			modelTypeConfiguration.Properties[1].TypeInfoWrapper.IsArray.Should().BeTrue();
+		}
+
 		public class Step1Test : TypeConfigurationBuilderTest
 		{
 			[Fact]
