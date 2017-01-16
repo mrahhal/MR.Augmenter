@@ -1,19 +1,51 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 using Microsoft.Extensions.DependencyInjection;
 using MR.Augmenter;
 using Newtonsoft.Json;
 
 namespace Benchmark
 {
+	public class Bench
+	{
+		private IServiceProvider _provider;
+		private IAugmenter _augmenter;
+
+		[Setup]
+		public void SetupData()
+		{
+			_provider = Helper.CreateProvider();
+			_augmenter = _provider.GetService<IAugmenter>();
+		}
+
+		[Benchmark]
+		public object Serialize()
+		{
+			var model = Helper.CreateModel();
+			return JsonConvert.SerializeObject(model);
+		}
+
+		[Benchmark]
+		public object Augment()
+		{
+			var model = Helper.CreateModel();
+			var augmented = _augmenter.AugmentAsync(model).Result;
+			return JsonConvert.SerializeObject(augmented);
+		}
+	}
+
 	public class Program
 	{
 		private const int Iterations = 10000;
 
 		public static void Main(string[] args)
 		{
-			new Program().Run();
+			//new Program().Run();
+
+			var summary = BenchmarkRunner.Run<Bench>();
 		}
 
 		private void Run()
@@ -23,25 +55,25 @@ namespace Benchmark
 
 		private async Task RunAsync()
 		{
-			var provider = CreateProvider();
+			var provider = Helper.CreateProvider();
 
 			// Warm up.
-			using (var scope = CreateScope(provider))
+			using (var scope = Helper.CreateScope(provider))
 			{
 				var p = scope.ServiceProvider;
-				await RunAugmentAsync(p);
-				RunSerialize();
+				await Helper.RunAugmentAsync(p);
+				Helper.RunSerialize();
 			}
 
 			// Real measuring.
-			using (var scope = CreateScope(provider))
+			using (var scope = Helper.CreateScope(provider))
 			{
 				var p = scope.ServiceProvider;
 				var sw = Stopwatch.StartNew();
 
 				for (int i = 0; i < Iterations; i++)
 				{
-					await RunAugmentAsync(p);
+					await Helper.RunAugmentAsync(p);
 				}
 
 				var s1 = sw.Elapsed;
@@ -49,7 +81,7 @@ namespace Benchmark
 
 				for (int i = 0; i < Iterations; i++)
 				{
-					RunSerialize();
+					Helper.RunSerialize();
 				}
 
 				var s2 = sw.Elapsed;
@@ -61,41 +93,44 @@ namespace Benchmark
 
 		private void Print(TimeSpan s1, TimeSpan s2)
 		{
-			Console.WriteLine($"S1: {s1.TotalSeconds} secs ({(double)s1.Ticks/s2.Ticks}x)");
+			Console.WriteLine($"S1: {s1.TotalSeconds} secs ({(double)s1.Ticks / s2.Ticks}x)");
 			Console.WriteLine($"S2: {s2.TotalSeconds} secs");
 		}
+	}
 
-		private Task<string> RunAugmentAsync(IServiceProvider p)
+	public static class Helper
+	{
+		public static Task<string> RunAugmentAsync(IServiceProvider p)
 		{
 			return RunAugmentAsync(GetAugmenter(p));
 		}
 
-		private async Task<string> RunAugmentAsync(IAugmenter augmenter)
+		public static async Task<string> RunAugmentAsync(IAugmenter augmenter)
 		{
 			var model = CreateModel();
 			var obj = await augmenter.AugmentAsync(model);
 			return Serialize(obj);
 		}
 
-		private string RunSerialize()
+		public static string RunSerialize()
 		{
 			var model = CreateModel();
 			return Serialize(model);
 		}
 
-		private ModelWithNested CreateModel()
+		public static ModelWithNested CreateModel()
 		{
 			return new ModelWithNested();
 		}
 
-		private string Serialize(object obj)
+		public static string Serialize(object obj)
 		{
 			return JsonConvert.SerializeObject(obj);
 		}
 
-		private IAugmenter GetAugmenter(IServiceProvider provider) => provider.GetService<IAugmenter>();
+		public static IAugmenter GetAugmenter(IServiceProvider provider) => provider.GetService<IAugmenter>();
 
-		private IServiceProvider CreateProvider()
+		public static IServiceProvider CreateProvider()
 		{
 			var services = new ServiceCollection();
 			services.AddScoped<ISomeService, SomeService>();
@@ -127,7 +162,7 @@ namespace Benchmark
 			return services.BuildServiceProvider();
 		}
 
-		private IServiceScope CreateScope(IServiceProvider provider)
+		public static IServiceScope CreateScope(IServiceProvider provider)
 		{
 			return provider.GetService<IServiceScopeFactory>().CreateScope();
 		}

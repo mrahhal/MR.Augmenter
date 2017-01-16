@@ -4,6 +4,7 @@
   },
 
   "dependencies": {
+    "BenchmarkDotNet": "0.10.1",
     "MR.Augmenter": "*"
   },
 

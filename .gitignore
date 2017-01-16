@@ -10,3 +10,5 @@ node_modules/
 **/wwwroot/lib/
 
 tools/
+
+samples/Benchmark/BenchmarkDotNet.Artifacts/
