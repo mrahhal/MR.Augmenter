@@ -55,6 +55,8 @@ Returned json:
 
 ## Getting started
 
+You'll want to add the `MR.Augmenter.AspNetCore` package to your dependencies (which depends on `MR.Augmenter`).
+
 Add Augmenter and configure global options:
 
 ```cs
