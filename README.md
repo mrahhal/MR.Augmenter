@@ -62,7 +62,7 @@ Add Augmenter and configure global options:
 ```cs
 services.AddAugmenter(config => { ... });
 
-// This will add a global filter that will handle augmenting your returned models.
+// This will add a global filter that will handle augmenting models you return from actions.
 services.AddAugmenterForMvc();
 ```
 
