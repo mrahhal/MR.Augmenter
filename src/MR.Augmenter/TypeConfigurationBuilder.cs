@@ -72,6 +72,11 @@ namespace MR.Augmenter
 			var properties = type.GetTypeInfo().DeclaredProperties;
 			foreach (var p in properties)
 			{
+				if (p.GetMethod.IsStatic)
+				{
+					continue;
+				}
+
 				var tiw = TypeInfoResolver.ResolveTypeInfo(p.PropertyType);
 
 				if (tiw.IsPrimitive)

@@ -76,4 +76,10 @@ namespace MR.Augmenter
 		public int Id { get; set; } = 42;
 		public List<TestModelSelfReferencingArray> Children { get; set; }
 	}
+
+	public class TestModelWithStaticReference
+	{
+		public int Id { get; set; } = 42;
+		public static TestModelWithStaticReference Instance { get; set; } = new TestModelWithStaticReference();
+	}
 }

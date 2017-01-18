@@ -116,6 +116,21 @@ namespace MR.Augmenter
 			modelTypeConfiguration.Properties[1].TypeInfoWrapper.IsArray.Should().BeTrue();
 		}
 
+		[Fact]
+		public void IgnoresStaticReferences()
+		{
+			var modelTypeConfiguration = new TypeConfiguration<TestModelWithStaticReference>();
+			modelTypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			var list = new List<TypeConfiguration>
+			{
+				modelTypeConfiguration
+			};
+			var builder = new TypeConfigurationBuilder(list);
+			var result = builder.Build(modelTypeConfiguration, typeof(TestModelWithStaticReference));
+
+			modelTypeConfiguration.Properties.Should().HaveCount(1);
+		}
+
 		public class Step1Test : TypeConfigurationBuilderTest
 		{
 			[Fact]
