@@ -1,5 +1,19 @@
 ﻿{
   "version": "0.1.2-*",
+  "description": "Take control of the data your API returns.",
+  "authors": [
+    "Mohammad Rahhal"
+  ],
+  "packOptions": {
+    "tags": [
+      "augmenter",
+      "serialization",
+      "api",
+      "models"
+    ],
+    "projectUrl": "https://github.com/mrahhal/MR.Augmenter",
+    "licenseUrl": "https://github.com/mrahhal/MR.Augmenter/blob/master/LICENSE.txt"
+  },
   "dependencies": {
     "Microsoft.Extensions.DependencyInjection": "1.1.0",
     "NETStandard.Library": "1.6.1",

@@ -1,5 +1,20 @@
 ﻿{
   "version": "0.1.2-*",
+  "description": "Take control of the data your API returns.",
+  "authors": [
+    "Mohammad Rahhal"
+  ],
+  "packOptions": {
+    "tags": [
+      "aspnetcore",
+      "augmenter",
+      "serialization",
+      "api",
+      "models"
+    ],
+    "projectUrl": "https://github.com/mrahhal/MR.Augmenter",
+    "licenseUrl": "https://github.com/mrahhal/MR.Augmenter/blob/master/LICENSE.txt"
+  },
   "dependencies": {
     "Microsoft.AspNetCore.Mvc": "1.1.0",
     "MR.Augmenter": "*"
