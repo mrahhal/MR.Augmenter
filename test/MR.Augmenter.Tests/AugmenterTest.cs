@@ -70,6 +70,16 @@ namespace MR.Augmenter
 
 				result[nameof(TestModel1.Foo)].Cast<string>().Should().Be("foo");
 			}
+
+			[Fact]
+			public async Task Enums()
+			{
+				var model = new TestModelWithEnum();
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				result[nameof(TestModelWithEnum.Some)].Cast<SomeEnum>().Should().Be(SomeEnum.Bar);
+			}
 		}
 
 		public class NestedTest : AugmenterTest

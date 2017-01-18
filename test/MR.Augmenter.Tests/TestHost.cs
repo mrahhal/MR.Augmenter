@@ -30,6 +30,7 @@ namespace MR.Augmenter
 				c.ConfigureAdd("Bar2", (x, _) => $"{x.Id}-{x.Foo}");
 				c.ConfigureRemove(nameof(TestModel1.Some));
 			});
+			configuration.Configure<TestModelWithEnum>(c => { });
 
 			if (build)
 			{

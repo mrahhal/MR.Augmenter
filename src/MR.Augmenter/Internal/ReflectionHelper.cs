@@ -43,7 +43,8 @@ namespace MR.Augmenter.Internal
 				type.GetTypeInfo().IsPrimitive ||
 				type == typeof(string) ||
 				type == typeof(DateTime) ||
-				type == typeof(DateTimeOffset);
+				type == typeof(DateTimeOffset) ||
+				type.GetTypeInfo().IsEnum;
 		}
 
 		public static bool IsEnumerableOrArrayType(Type type, out Type elementType)

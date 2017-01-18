@@ -82,4 +82,16 @@ namespace MR.Augmenter
 		public int Id { get; set; } = 42;
 		public static TestModelWithStaticReference Instance { get; set; } = new TestModelWithStaticReference();
 	}
+
+	public class TestModelWithEnum
+	{
+		public int Id { get; set; } = 42;
+		public SomeEnum Some { get; set; } = SomeEnum.Bar;
+	}
+
+	public enum SomeEnum
+	{
+		Foo,
+		Bar
+	}
 }
