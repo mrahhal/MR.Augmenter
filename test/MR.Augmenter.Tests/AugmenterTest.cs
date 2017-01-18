@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 using AArray = System.Collections.Generic.List<object>;
@@ -80,6 +79,32 @@ namespace MR.Augmenter
 				var result = await _fixture.AugmentAsync(model) as AObject;
 
 				result[nameof(TestModelWithEnum.Some)].Cast<SomeEnum>().Should().Be(SomeEnum.Bar);
+			}
+
+			[Fact]
+			public async Task WrapperAroundArray()
+			{
+				var wrapper = new AugmenterWrapper<TestModelForWrapping>(new[]
+				{
+					new TestModelForWrapping() { Id = 42, Model = new TestModel1() },
+					new TestModelForWrapping() { Id = 43, Model = new TestModel1() }
+				});
+				wrapper.SetConfiguration(c =>
+				{
+					c.ConfigureAdd("Foo", (x, state) => $"{x.Id}-foo");
+				});
+				var model = new
+				{
+					Models = wrapper
+				};
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				result["Models"].GetType().Should().Be(typeof(AArray));
+				var list = result["Models"] as AArray;
+				list.Should().HaveCount(2);
+				list[0].Cast<AObject>()["Foo"].Cast<string>().Should().Be("42-foo");
+				list[1].Cast<AObject>()["Foo"].Cast<string>().Should().Be("43-foo");
 			}
 		}
 
@@ -180,32 +205,6 @@ namespace MR.Augmenter
 				list[0].Cast<AObject>()["Id"].Cast<int>().Should().Be(42);
 				list[1].Cast<AObject>()["Id"].Cast<int>().Should().Be(43);
 			}
-		}
-
-		[Fact]
-		public async Task WrapperAroundArray()
-		{
-			var wrapper = new AugmenterWrapper<TestModelForWrapping>(new[]
-			{
-				new TestModelForWrapping() { Id = 42, Model = new TestModel1() },
-				new TestModelForWrapping() { Id = 43, Model = new TestModel1() }
-			});
-			wrapper.SetConfiguration(c =>
-			{
-				c.ConfigureAdd("Foo", (x, state) => $"{x.Id}-foo");
-			});
-			var model = new
-			{
-				Models = wrapper
-			};
-
-			var result = await _fixture.AugmentAsync(model) as AObject;
-
-			result["Models"].GetType().Should().Be(typeof(AArray));
-			var list = result["Models"] as AArray;
-			list.Should().HaveCount(2);
-			list[0].Cast<AObject>()["Foo"].Cast<string>().Should().Be("42-foo");
-			list[1].Cast<AObject>()["Foo"].Cast<string>().Should().Be("43-foo");
 		}
 
 		public class StateTest : AugmenterTest

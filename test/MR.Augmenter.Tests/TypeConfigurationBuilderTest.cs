@@ -131,7 +131,7 @@ namespace MR.Augmenter
 			modelTypeConfiguration.Properties.Should().HaveCount(1);
 		}
 
-		public class Step1Test : TypeConfigurationBuilderTest
+		public class Step1Test : TestHost
 		{
 			[Fact]
 			public void CollectsBaseTypes()
@@ -310,7 +310,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		public class Step2Test : TypeConfigurationBuilderTest
+		public class Step2Test : TestHost
 		{
 			[Fact]
 			public void Unknown_WithNested()
