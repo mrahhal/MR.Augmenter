@@ -16,7 +16,7 @@ namespace MR.Augmenter
 
 	public class AugmenterWrapper<T> : AugmenterWrapper
 	{
-		public AugmenterWrapper(T obj)
+		public AugmenterWrapper(object obj)
 			: base(obj)
 		{
 		}

@@ -43,6 +43,7 @@ namespace MR.Augmenter
 		protected AugmenterConfiguration CreateBuiltConfiguration()
 		{
 			var configuration = new AugmenterConfiguration();
+			configuration.Configure<TestModel1>(c => { });
 			configuration.Build();
 			return configuration;
 		}

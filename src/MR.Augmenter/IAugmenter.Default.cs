@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using IState = System.Collections.Generic.IReadOnlyDictionary<string, object>;
 
 namespace MR.Augmenter
@@ -51,18 +52,35 @@ namespace MR.Augmenter
 					}
 					else if (!property.TypeInfoWrapper.IsArray)
 					{
+						var done = false;
+						AugmenterWrapper wrapper = null;
 						if (property.TypeInfoWrapper.IsWrapper)
 						{
-							var wrapper = nestedObject as AugmenterWrapper;
+							wrapper = nestedObject as AugmenterWrapper;
 							nestedObject = wrapper.Object;
+
+							if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(nestedObject.GetType().GetTypeInfo()))
+							{
+								// The nested object is an array. This means we should apply the
+								// wrapper's configuration to all items in the array.
+
+								var nestedList = new List<object>();
+								AugmentArray(nestedObject, property, nestedList, state,
+									BuildList(property.TypeConfiguration, wrapper.TypeConfiguration));
+								root[property.PropertyInfo.Name] = nestedList;
+								done = true;
+							}
 						}
 
-						var nestedDict = new Dictionary<string, object>();
-						foreach (var item in BuildList(property.TypeConfiguration, null))
+						if (!done)
 						{
-							AugmentObject(nestedObject, item, nestedDict, state);
+							var nestedDict = new Dictionary<string, object>();
+							foreach (var item in BuildList(property.TypeConfiguration, null))
+							{
+								AugmentObject(nestedObject, item, nestedDict, state);
+							}
+							root[property.PropertyInfo.Name] = nestedDict;
 						}
-						root[property.PropertyInfo.Name] = nestedDict;
 					}
 					else
 					{
@@ -79,7 +97,12 @@ namespace MR.Augmenter
 			}
 		}
 
-		private void AugmentArray(object obj, APropertyInfo property, List<object> nestedList, IState state, List<TypeConfiguration> typeConfigurations)
+		private void AugmentArray(
+			object obj,
+			APropertyInfo property,
+			List<object> nestedList,
+			IState state,
+			List<TypeConfiguration> typeConfigurations)
 		{
 			var asEnumerable = obj as IEnumerable;
 			foreach (var item in asEnumerable)
@@ -88,7 +111,10 @@ namespace MR.Augmenter
 				if (property.TypeInfoWrapper.IsWrapper)
 				{
 					var wrapper = item as AugmenterWrapper;
-					actual = wrapper.Object;
+					if (wrapper != null)
+					{
+						actual = wrapper.Object;
+					}
 				}
 
 				var dict = new Dictionary<string, object>();
