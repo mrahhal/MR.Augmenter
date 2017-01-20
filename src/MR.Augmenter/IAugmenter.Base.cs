@@ -44,7 +44,7 @@ namespace MR.Augmenter
 		public virtual Task<object> AugmentAsync<T>(
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<Dictionary<string, object>> addState = null)
+			Action<IDictionary<string, object>> addState = null)
 		{
 			if (obj == null)
 			{
@@ -80,7 +80,7 @@ namespace MR.Augmenter
 		public Task<object> AugmentAsync<T>(
 			IEnumerable<T> obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<Dictionary<string, object>> addState = null)
+			Action<IDictionary<string, object>> addState = null)
 		{
 			if (obj == null)
 			{
@@ -116,7 +116,7 @@ namespace MR.Augmenter
 		public Task<object> AugmentAsync<T>(
 			T[] obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<Dictionary<string, object>> addState = null)
+			Action<IDictionary<string, object>> addState = null)
 		{
 			if (obj == null)
 			{
@@ -151,7 +151,7 @@ namespace MR.Augmenter
 
 		public virtual async Task<object> AugmentCommon(
 			object obj, Type type,
-			Action<Dictionary<string, object>> addState,
+			Action<IDictionary<string, object>> addState,
 			Action<AugmentationContext, object> configure,
 			object configureState)
 		{
@@ -209,9 +209,9 @@ namespace MR.Augmenter
 		}
 
 		private async Task<IReadOnlyDictionary<string, object>> CreateDictionaryAndAddStateAsync(
-			Action<Dictionary<string, object>> addState)
+			Action<IDictionary<string, object>> addState)
 		{
-			var dictionary = new Dictionary<string, object>();
+			var dictionary = new GracefulDictionary();
 
 			if (Configuration.ConfigureGlobalState != null)
 			{
