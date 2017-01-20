@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using MR.Augmenter;
 using Xunit;
 
 namespace MR.Augmenter
@@ -105,7 +106,41 @@ namespace MR.Augmenter
 				context.State.Should().NotContain("Some");
 			}
 
-			public class EnumerableTest : AugmentTest
+			[Fact]
+			public async Task AlwaysAugmentsIfConfigureIsProvided()
+			{
+				var configuration = new AugmenterConfiguration();
+				configuration.Build();
+				var fixture = MocksHelper.AugmenterBase(configuration);
+				var model = new TestModel1();
+
+				var result = await fixture.AugmentAsync(model, c =>
+				{
+					c.ConfigureAdd("Bar", (x, state) => "bar");
+				});
+
+				fixture.Contexts.Should().HaveCount(1);
+				fixture.Contexts.First().EphemeralTypeConfiguration.Augments.Should().HaveCount(1);
+				fixture.Contexts.First().TypeConfiguration.Properties.Should().HaveCount(3);
+			}
+
+			[Fact]
+			public async Task AlwaysAugmentsIfUsingAWrapper()
+			{
+				var configuration = new AugmenterConfiguration();
+				configuration.Build();
+				var fixture = MocksHelper.AugmenterBase(configuration);
+				var model = new TestModel1();
+				var wrapper = new AugmenterWrapper<TestModel1>(model);
+
+				var result = await fixture.AugmentAsync(wrapper);
+
+				fixture.Contexts.Should().HaveCount(1);
+				fixture.Contexts.First().TypeConfiguration.Augments.Should().HaveCount(0);
+				fixture.Contexts.First().TypeConfiguration.Properties.Should().HaveCount(3);
+			}
+
+			public class EnumerableTest : AugmenterBaseTest
 			{
 				[Fact]
 				public async Task SupportsEnumerable()
@@ -144,7 +179,7 @@ namespace MR.Augmenter
 				}
 			}
 
-			public class WrapperTest : AugmentTest
+			public class WrapperTest : AugmenterBaseTest
 			{
 				[Fact]
 				public async Task PicksUpWrapperConfiguration()

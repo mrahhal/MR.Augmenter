@@ -15,7 +15,7 @@ namespace MR.Augmenter
 			_all = all;
 		}
 
-		public TypeConfiguration Build(TypeConfiguration typeConfiguration, Type type)
+		public TypeConfiguration Build(TypeConfiguration typeConfiguration, Type type, bool alwaysBuild = false)
 		{
 			if (typeConfiguration == null && type == null)
 			{
@@ -32,7 +32,9 @@ namespace MR.Augmenter
 				return null;
 			}
 
-			var context = new Context(typeConfiguration, type);
+			var context = new Context(
+				alwaysBuild ? (typeConfiguration ?? new TypeConfiguration(type)) : typeConfiguration,
+				type);
 			BuildOne(context, type);
 			return context.Current;
 		}
@@ -93,7 +95,10 @@ namespace MR.Augmenter
 				else
 				{
 					var nestedTypeConfiguration = _all.FirstOrDefault(c => c.Type == tiw.Type);
-					var scoped = context.CreateScoped(nestedTypeConfiguration, tiw.Type);
+					var scoped = context.CreateScoped(
+						tiw.IsWrapper ? (nestedTypeConfiguration ?? new TypeConfiguration(type)) : nestedTypeConfiguration,
+						tiw.Type);
+
 					BuildOne(scoped, tiw.Type);
 					if (!scoped.Empty)
 					{

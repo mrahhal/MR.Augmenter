@@ -161,7 +161,8 @@ namespace MR.Augmenter
 				return obj;
 			}
 
-			var typeConfiguration = ResolveTypeConfiguration(tiw.Type);
+			var alwaysBuild = tiw.IsWrapper || configure != null;
+			var typeConfiguration = ResolveTypeConfiguration(tiw.Type, alwaysBuild);
 
 			if (typeConfiguration == null && configure == null)
 			{
@@ -227,7 +228,7 @@ namespace MR.Augmenter
 			return new ReadOnlyDictionary<string, object>(dictionary);
 		}
 
-		private TypeConfiguration ResolveTypeConfiguration(Type type)
+		private TypeConfiguration ResolveTypeConfiguration(Type type, bool alwaysBuild)
 		{
 			return _cache.GetOrAdd(type, t =>
 			{
@@ -237,7 +238,7 @@ namespace MR.Augmenter
 
 				if (typeConfiguration == null)
 				{
-					typeConfiguration = _builder.Build(null, type);
+					typeConfiguration = _builder.Build(null, type, alwaysBuild);
 				}
 
 				return typeConfiguration;

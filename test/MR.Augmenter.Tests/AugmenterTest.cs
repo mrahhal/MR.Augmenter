@@ -76,7 +76,7 @@ namespace MR.Augmenter
 			{
 				var model = new TestModelWithEnum();
 
-				var result = await _fixture.AugmentAsync(model) as AObject;
+				var result = await _fixture.AugmentAsync(model, c => { /* force augment */ }) as AObject;
 
 				result[nameof(TestModelWithEnum.Some)].Cast<SomeEnum>().Should().Be(SomeEnum.Bar);
 			}
