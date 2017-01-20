@@ -1,6 +1,8 @@
 ﻿{
   "dependencies": {
-    "MR.Augmenter.AspNetCore": "*",
+    "MR.Augmenter.AspNetCore": {
+      "target": "project"
+    },
     "MR.Augmenter.Tests": "*"
   },
   "testRunner": "xunit",

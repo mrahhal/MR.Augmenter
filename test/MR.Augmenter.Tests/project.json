@@ -4,7 +4,9 @@
     "FluentAssertions": "4.18.0",
     "Microsoft.DotNet.InternalAbstractions": "1.0.1-beta-003206",
     "Moq": "4.6.38-*",
-    "MR.Augmenter": "*",
+    "MR.Augmenter": {
+      "target": "project"
+    },
     "xunit": "2.2.0-*"
   },
   "testRunner": "xunit",
