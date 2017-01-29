@@ -67,13 +67,6 @@ namespace Basic
 				{
 					c.ConfigureAdd("Details2", (x, state) => $"{x.Details}2");
 				});
-
-				// This is so that ModelC.Wrapper and Wrappers properties get processed correctly.
-				// A model like this a bit unlikely so you don't need to bother.
-				config.Configure<Model1>(c => { });
-				config.Configure<ModelSome>(c => { });
-
-				config.Configure<ModelU2>(c => { });
 			});
 
 			services.AddAugmenterForMvc();
