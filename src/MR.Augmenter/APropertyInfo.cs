@@ -11,7 +11,7 @@ namespace MR.Augmenter
 			PropertyInfo = pi;
 			TypeInfoWrapper = tiw;
 			TypeConfiguration = tc;
-			GetValueFunc = ExpressionHelper.CreateGet<object>(pi);
+			GetValueFunc = PropertyHelper.MakeFastPropertyGetter(pi);
 		}
 
 		public PropertyInfo PropertyInfo { get; }
