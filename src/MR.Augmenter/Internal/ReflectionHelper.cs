@@ -39,12 +39,11 @@ namespace MR.Augmenter.Internal
 
 		public static bool IsPrimitive(Type type)
 		{
+			var typeInfo = type.GetTypeInfo();
 			return
-				type.GetTypeInfo().IsPrimitive ||
-				type == typeof(string) ||
-				type == typeof(DateTime) ||
-				type == typeof(DateTimeOffset) ||
-				type.GetTypeInfo().IsEnum;
+				typeInfo.IsPrimitive ||
+				typeInfo.IsValueType ||
+				type == typeof(string);
 		}
 
 		public static bool IsEnumerableOrArrayType(Type type, out Type elementType)
