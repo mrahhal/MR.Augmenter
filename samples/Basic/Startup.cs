@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Basic.Models;
+﻿using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,9 +21,9 @@ namespace Basic
 				config.ConfigureGlobalState = (state, provider) =>
 				{
 					// You can use provider to resolve some services (such as IAuthenticationManager).
-					state["IsFoo"] = true; // This state will always be available.
+					state["IsFoo"] = Boxed.True; // This state will always be available.
 
-					state["IsAdmin"] = false; // You can resolve this from IAuthenticationManager.
+					state["IsAdmin"] = Boxed.False; // You can resolve this from IAuthenticationManager.
 
 					// Let's try doing something a bit more complex.
 					var context = provider.GetService<IHttpContextAccessor>().HttpContext;
@@ -35,38 +35,16 @@ namespace Basic
 					return Task.CompletedTask;
 				};
 
-				config.Configure<ModelA>(c =>
-				{
-					c.ConfigureRemove(nameof(ModelA.Ex));
-					c.ConfigureRemove(nameof(ModelA.Secret), (x, state) =>
-					{
-						if ((bool)state["IsAdmin"])
-						{
-							// Don't remove if IsAdmin is true. Ignore here refers to this specific augmentation.
-							return AugmentationValue.Ignore;
-						}
-						return null;
-					});
+				// Add this assembly to the ones that should be scanned for TypeConfigurations.
+				config.AddAssembly(typeof(Startup).GetTypeInfo().Assembly);
 
-					c.ConfigureAdd("Some", (x, state) => $"/{x.Hash}/some");
-					c.ConfigureAdd("IsFoo", (x, state) => state["IsFoo"]);
-					c.ConfigureAdd("Bar", (x, state) =>
-					{
-						object value;
-						if (!state.TryGetValue("Bar", out value))
-						{
-							// Return this special value to let the service know that it should
-							// ignore this augmentation.
-							return AugmentationValue.Ignore;
-						}
-						return value;
-					});
-				});
-
-				config.Configure<ModelB>(c =>
-				{
-					c.ConfigureAdd("Details2", (x, state) => $"{x.Details}2");
-				});
+				// These are now each its own class that extends TypeConfiguration
+				//config.Configure<ModelA>(c =>
+				//{
+				//});
+				//config.Configure<ModelB>(c =>
+				//{
+				//});
 			}).ForMvc();
 
 			services.AddMvc()

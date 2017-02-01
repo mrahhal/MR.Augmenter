@@ -77,15 +77,38 @@ services.AddAugmenter(config =>
     // Start configuring the type "Model1".
     config.Configure<Model1>(c =>
     {
-        // Use ConfigureRemove to configure a "Remove" agumentation.
+        // Use Remove to configure a "Remove" agumentation.
         // From now on, the "Secret" property will always be removed from the response.
-        c.ConfigureRemove(nameof(Model1.Secret));
+        c.Remove(nameof(Model1.Secret));
 
-        // Use ConfigureAdd to configure an "Add" augmentation.
+        // Use Add to configure an "Add" augmentation.
         // From now on, the "Image" property will always be added to the response.
-        c.ConfigureAdd("Image", (x, state) => $"/{x.Hash}/some/path");
+        c.Add("Image", (x, state) => $"/{x.Hash}/some/path");
     });
 });
+```
+
+You can also extend `TypeConfiguration<>`. Augmenter will automatically scan for such types on startup, but you'll have to add your assembly first:
+
+```cs
+services.AddAugmenter(config =>
+{
+    // Add the assemblies that you want us to scan for type configuration classes.
+    config.AddAssembly(typeof(Startup).Assembly);
+});
+```
+
+And somewhere else:
+
+```cs
+// You should have a public default ctor and call configuration methods from it.
+public class Model1Configuration : TypeConfiguration<Model1>
+{
+    public Model1Configuration()
+    {
+        Remove(nameof(Model1.Secret));
+    }
+}
 ```
 
 For a lot more options checkout the samples.

@@ -116,7 +116,7 @@ namespace MR.Augmenter
 
 				var result = await fixture.AugmentAsync(model, c =>
 				{
-					c.ConfigureAdd("Bar", (x, state) => "bar");
+					c.Add("Bar", (x, state) => "bar");
 				});
 
 				fixture.Contexts.Should().HaveCount(1);
@@ -189,7 +189,7 @@ namespace MR.Augmenter
 					var wrapper = new AugmenterWrapper<TestModel1>(model);
 					wrapper.SetConfiguration(c =>
 					{
-						c.ConfigureAdd("Baz", (x, state) => x.Id);
+						c.Add("Baz", (x, state) => x.Id);
 					});
 
 					await fixture.AugmentAsync(wrapper);

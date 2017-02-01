@@ -85,7 +85,7 @@ namespace Basic.Controllers
 			var wrapper = new AugmenterWrapper<ModelB>(model);
 			wrapper.SetConfiguration(c =>
 			{
-				c.ConfigureAdd("Baz", (x, state) => x.Id);
+				c.Add("Baz", (x, state) => x.Id);
 			});
 
 			return Ok(wrapper);
@@ -100,7 +100,7 @@ namespace Basic.Controllers
 			var wrapper = new AugmenterWrapper<ModelB>(model);
 			wrapper.SetConfiguration(c =>
 			{
-				c.ConfigureAdd("Baz", (x, state) => x.Id);
+				c.Add("Baz", (x, state) => x.Id);
 			});
 
 			return Ok(new

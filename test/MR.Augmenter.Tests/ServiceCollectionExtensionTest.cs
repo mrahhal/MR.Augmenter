@@ -15,7 +15,7 @@ namespace MR.Augmenter
 			{
 				config.Configure<TestModel1>(c =>
 				{
-					c.ConfigureAdd("Bar", (_, __) => "bar");
+					c.Add("Bar", (_, __) => "bar");
 				});
 				config.Build();
 			});

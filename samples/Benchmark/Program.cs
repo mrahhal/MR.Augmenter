@@ -145,17 +145,17 @@ namespace Benchmark
 
 				config.Configure<ModelA>(c =>
 				{
-					c.ConfigureRemove(nameof(ModelA.Secret));
+					c.Remove(nameof(ModelA.Secret));
 				});
 
 				config.Configure<ModelWithNested>(c =>
 				{
-					c.ConfigureAdd("Something", (x, state) => state["Something"]);
+					c.Add("Something", (x, state) => state["Something"]);
 				});
 
 				config.Configure<ModelNested>(c =>
 				{
-					c.ConfigureAdd("Answer", (x, state) => 42);
+					c.Add("Answer", (x, state) => 42);
 				});
 			});
 

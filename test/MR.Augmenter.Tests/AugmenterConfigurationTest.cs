@@ -14,7 +14,7 @@ namespace MR.Augmenter
 
 			configuration.Configure<TestModel1>(c =>
 			{
-				c.ConfigureAdd("Foo", (x, _) => $"({x.Id})");
+				c.Add("Foo", (x, _) => $"({x.Id})");
 			});
 
 			configuration.TypeConfigurations.Should()
@@ -29,7 +29,7 @@ namespace MR.Augmenter
 
 			configuration.Configure<TestModel1>(c =>
 			{
-				c.ConfigureRemove("Foo");
+				c.Remove("Foo");
 			});
 
 			configuration.TypeConfigurations.First().Augments.First().Invoking(o =>

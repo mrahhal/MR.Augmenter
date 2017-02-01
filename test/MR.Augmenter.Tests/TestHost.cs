@@ -14,21 +14,21 @@ namespace MR.Augmenter
 
 			configuration.Configure<TestModel1>(c =>
 			{
-				c.ConfigureAdd("Bar", (x, _) => $"({x.Id})");
-				c.ConfigureRemove(nameof(TestModel1.Some));
+				c.Add("Bar", (x, _) => $"({x.Id})");
+				c.Remove(nameof(TestModel1.Some));
 			});
 			configuration.Configure<TestModelA>(c =>
 			{
-				c.ConfigureAdd("Id2", (x, _) => $"{x.Id}2");
+				c.Add("Id2", (x, _) => $"{x.Id}2");
 			});
 			configuration.Configure<TestModelB>(c =>
 			{
-				c.ConfigureRemove(nameof(TestModelB.Foo));
+				c.Remove(nameof(TestModelB.Foo));
 			});
 			configuration.Configure<TestModelC>(c =>
 			{
-				c.ConfigureAdd("Bar2", (x, _) => $"{x.Id}-{x.Foo}");
-				c.ConfigureRemove(nameof(TestModel1.Some));
+				c.Add("Bar2", (x, _) => $"{x.Id}-{x.Foo}");
+				c.Remove(nameof(TestModel1.Some));
 			});
 
 			if (build)

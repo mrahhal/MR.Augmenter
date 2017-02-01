@@ -37,7 +37,7 @@ namespace MR.Augmenter
 
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
-					c.ConfigureAdd("Baz", (_, __) => 2);
+					c.Add("Baz", (_, __) => 2);
 				}) as AObject;
 
 				result["Bar"].Cast<string>().Should().Be($"({model.Id})");
@@ -52,7 +52,7 @@ namespace MR.Augmenter
 
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
-					c.ConfigureAdd("Some", (_, __) => AugmentationValue.Ignore);
+					c.Add("Some", (_, __) => AugmentationValue.Ignore);
 				}) as AObject;
 
 				result.Should().NotContainKey("Some");
@@ -65,7 +65,7 @@ namespace MR.Augmenter
 
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
-					c.ConfigureRemove(nameof(TestModel1.Foo), (_, __) => AugmentationValue.Ignore);
+					c.Remove(nameof(TestModel1.Foo), (_, __) => AugmentationValue.Ignore);
 				}) as AObject;
 
 				result[nameof(TestModel1.Foo)].Cast<string>().Should().Be("foo");
@@ -91,7 +91,7 @@ namespace MR.Augmenter
 				});
 				wrapper.SetConfiguration(c =>
 				{
-					c.ConfigureAdd("Foo", (x, state) => $"{x.Id}-foo");
+					c.Add("Foo", (x, state) => $"{x.Id}-foo");
 				});
 				var model = new
 				{
@@ -116,15 +116,15 @@ namespace MR.Augmenter
 				_configuration.Configure<TestModel1>(c => { });
 				_configuration.Configure<TestModelWithNested>(c =>
 				{
-					c.ConfigureAdd("Foo", (_, __) => "42");
+					c.Add("Foo", (_, __) => "42");
 				});
 				_configuration.Configure<TestModelNested>(c =>
 				{
-					c.ConfigureAdd("Foo", (_, __) => "43");
+					c.Add("Foo", (_, __) => "43");
 				});
 				_configuration.Configure<TestModelNestedNested>(c =>
 				{
-					c.ConfigureAdd("Foo", (_, __) => "44");
+					c.Add("Foo", (_, __) => "44");
 				});
 
 				_configuration.Build();
@@ -223,7 +223,7 @@ namespace MR.Augmenter
 				_configuration = new AugmenterConfiguration();
 				_configuration.Configure<TestModel1>(c =>
 				{
-					c.ConfigureAdd("Bar", (x, state) =>
+					c.Add("Bar", (x, state) =>
 					{
 						return state["key"];
 					});
@@ -246,7 +246,7 @@ namespace MR.Augmenter
 
 				var result = await _fixture.AugmentAsync(model, c =>
 				{
-					c.ConfigureAdd("Bar", (x, state) =>
+					c.Add("Bar", (x, state) =>
 					{
 						return state["key"];
 					});
@@ -264,10 +264,9 @@ namespace MR.Augmenter
 				var model = new TestModelWithNested();
 
 				_configuration = new AugmenterConfiguration();
-				_configuration.Configure<TestModelWithNested>(null);
 				_configuration.Configure<TestModelNested>(c =>
 				{
-					c.ConfigureAdd("Foo", (x, state) =>
+					c.Add("Foo", (x, state) =>
 					{
 						return state["key"];
 					});
@@ -290,7 +289,7 @@ namespace MR.Augmenter
 
 				var result = await _fixture.AugmentAsync(model, config =>
 				{
-					config.ConfigureAdd("Bar", (x, state) =>
+					config.Add("Bar", (x, state) =>
 					{
 						if ((bool)state["key"])
 						{

@@ -67,7 +67,7 @@ namespace MR.Augmenter
 		public void EnsureConfigurationIsBuiltOnlyOnce()
 		{
 			var modelATypeConfiguration = new TypeConfiguration<TestModelA>();
-			modelATypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			modelATypeConfiguration.Add("Some", (x, state) => "some");
 			var modelBTypeConfiguration = new TypeConfiguration(typeof(TestModelB));
 			var list = new List<TypeConfiguration>
 			{
@@ -87,7 +87,7 @@ namespace MR.Augmenter
 		public void DetectsSelfReferencing()
 		{
 			var modelTypeConfiguration = new TypeConfiguration<TestModelSelfReferencing>();
-			modelTypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			modelTypeConfiguration.Add("Some", (x, state) => "some");
 			var list = new List<TypeConfiguration>
 			{
 				modelTypeConfiguration
@@ -103,7 +103,7 @@ namespace MR.Augmenter
 		public void DetectsSelfReferencingArray()
 		{
 			var modelTypeConfiguration = new TypeConfiguration<TestModelSelfReferencingArray>();
-			modelTypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			modelTypeConfiguration.Add("Some", (x, state) => "some");
 			var list = new List<TypeConfiguration>
 			{
 				modelTypeConfiguration
@@ -120,7 +120,7 @@ namespace MR.Augmenter
 		public void IgnoresStaticReferences()
 		{
 			var modelTypeConfiguration = new TypeConfiguration<TestModelWithStaticReference>();
-			modelTypeConfiguration.ConfigureAdd("Some", (x, state) => "some");
+			modelTypeConfiguration.Add("Some", (x, state) => "some");
 			var list = new List<TypeConfiguration>
 			{
 				modelTypeConfiguration

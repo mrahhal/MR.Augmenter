@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace MR.Augmenter
@@ -11,10 +12,27 @@ namespace MR.Augmenter
 
 		internal List<TypeConfiguration> TypeConfigurations { get; } = new List<TypeConfiguration>();
 
+		internal List<Assembly> Assemblies { get; } = new List<Assembly>();
+
 		public Func<IState, IServiceProvider, Task> ConfigureGlobalState { get; set; }
+
+		public void AddAssembly(Assembly assembly)
+		{
+			if (assembly == null)
+			{
+				throw new ArgumentNullException(nameof(assembly));
+			}
+
+			Assemblies.Add(assembly);
+		}
 
 		public void Configure<T>(Action<TypeConfiguration<T>> configure)
 		{
+			if (configure == null)
+			{
+				throw new ArgumentNullException(nameof(configure));
+			}
+
 			if (Built)
 			{
 				throw new InvalidOperationException("The configuration has already been built.");
@@ -39,7 +57,38 @@ namespace MR.Augmenter
 			}
 
 			Built = true;
+
+			CollectAssemblyDefinedTypeConfigurations();
 			BuildCore();
+		}
+
+		private void CollectAssemblyDefinedTypeConfigurations()
+		{
+			if (!Assemblies.Any())
+			{
+				return;
+			}
+
+			foreach (var assembly in Assemblies)
+			{
+				var typeConfigurationTypeInfo = typeof(TypeConfiguration).GetTypeInfo();
+				var types = assembly.ExportedTypes
+					.Select(t => t.GetTypeInfo())
+					.Where(t => typeConfigurationTypeInfo.IsAssignableFrom(t))
+					.ToList();
+
+				foreach (var type in types)
+				{
+					if (!type.BaseType.IsConstructedGenericType)
+					{
+						throw new InvalidOperationException("You should extend from the generic version of TypeConfiguration.");
+					}
+
+					var entityType = type.BaseType.GenericTypeArguments[0];
+					var instance = (TypeConfiguration)Activator.CreateInstance(type.AsType());
+					TypeConfigurations.Add(instance);
+				}
+			}
 		}
 
 		private void BuildCore()
