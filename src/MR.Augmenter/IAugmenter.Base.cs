@@ -46,35 +46,7 @@ namespace MR.Augmenter
 			Action<TypeConfiguration<T>> configure = null,
 			Action<IDictionary<string, object>> addState = null)
 		{
-			if (obj == null)
-			{
-				return _nullResultTask;
-			}
-
-			var type = obj.GetType();
-
-			if (configure == null)
-			{
-				return AugmentCommon(
-					obj, type,
-					addState,
-					null,
-					null);
-			}
-			else
-			{
-				return AugmentCommon(
-					obj, type,
-					addState,
-					(context, state) =>
-					{
-						var c = state as Action<TypeConfiguration<T>>;
-						var ephemeralTypeConfigration = new TypeConfiguration<T>();
-						c(ephemeralTypeConfigration);
-						context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
-					},
-					configure);
-			}
+			return AugmentCommonAsync(obj, configure, addState);
 		}
 
 		public Task<object> AugmentAsync<T>(
@@ -82,41 +54,23 @@ namespace MR.Augmenter
 			Action<TypeConfiguration<T>> configure = null,
 			Action<IDictionary<string, object>> addState = null)
 		{
-			if (obj == null)
-			{
-				return _nullResultTask;
-			}
-
-			var type = obj.GetType();
-
-			if (configure == null)
-			{
-				return AugmentCommon(
-					obj, type,
-					addState,
-					null,
-					null);
-			}
-			else
-			{
-				return AugmentCommon(
-					obj, type,
-					addState,
-					(context, state) =>
-					{
-						var c = state as Action<TypeConfiguration<T>>;
-						var ephemeralTypeConfigration = new TypeConfiguration<T>();
-						c(ephemeralTypeConfigration);
-						context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
-					},
-					configure);
-			}
+			return AugmentCommonAsync(obj, configure, addState);
 		}
 
+		// This method exists in order to make calls to AugmentAsync with an array select
+		// the right generic method (the enumerable one).
 		public Task<object> AugmentAsync<T>(
 			T[] obj,
 			Action<TypeConfiguration<T>> configure = null,
 			Action<IDictionary<string, object>> addState = null)
+		{
+			return AugmentAsync((IEnumerable<T>)obj, configure, addState);
+		}
+
+		private Task<object> AugmentCommonAsync<T>(
+			object obj,
+			Action<TypeConfiguration<T>> configure,
+			Action<IDictionary<string, object>> addState)
 		{
 			if (obj == null)
 			{
@@ -127,7 +81,7 @@ namespace MR.Augmenter
 
 			if (configure == null)
 			{
-				return AugmentCommon(
+				return AugmentInternal(
 					obj, type,
 					addState,
 					null,
@@ -135,7 +89,7 @@ namespace MR.Augmenter
 			}
 			else
 			{
-				return AugmentCommon(
+				return AugmentInternal(
 					obj, type,
 					addState,
 					(context, state) =>
@@ -149,7 +103,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		public virtual async Task<object> AugmentCommon(
+		private async Task<object> AugmentInternal(
 			object obj, Type type,
 			Action<IDictionary<string, object>> addState,
 			Action<AugmentationContext, object> configure,
