@@ -23,7 +23,6 @@ namespace MR.Augmenter
 		// Can be null to signify that this property doesn't need to be touched.
 		public TypeConfiguration TypeConfiguration { get; }
 
-		// Compiled from an expression
 		public Func<object, object> GetValueFunc { get; }
 
 		public object GetValue(object instance)
