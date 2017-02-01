@@ -60,10 +60,9 @@ You'll want to add the `MR.Augmenter.AspNetCore` package to your dependencies (w
 Add Augmenter and configure global options:
 
 ```cs
-services.AddAugmenter(config => { ... });
-
-// This will add a global filter that will handle augmenting models you return from actions.
-services.AddAugmenterForMvc();
+services
+    .AddAugmenter(config => { ... })
+    .ForMvc(); // This will add a global filter that will handle augmenting models you return from actions.
 ```
 
 From here on out, simply do what you always do. Augmenter will start working automatically with the models you return.

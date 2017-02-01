@@ -67,9 +67,7 @@ namespace Basic
 				{
 					c.ConfigureAdd("Details2", (x, state) => $"{x.Details}2");
 				});
-			});
-
-			services.AddAugmenterForMvc();
+			}).ForMvc();
 
 			services.AddMvc()
 				.AddJsonOptions(options =>
