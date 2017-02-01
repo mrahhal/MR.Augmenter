@@ -130,7 +130,7 @@ namespace MR.Augmenter
 			if (tiw.IsArray)
 			{
 				var asEnumerable = obj as IEnumerable;
-				var list = new List<object>();
+				var list = (obj as IList) != null ? new List<object>((obj as IList).Count) : new List<object>();
 				foreach (var item in asEnumerable)
 				{
 					// We'll reuse the context.
