@@ -1,5 +1,6 @@
 ﻿{
   "dependencies": {
+    "GracefulExpandoObject": "1.6.0",
     "Microsoft.AspNetCore.Diagnostics": "1.1.0",
     "Microsoft.AspNetCore.Mvc": "1.1.0",
     "Microsoft.AspNetCore.Server.IISIntegration": "1.1.0",

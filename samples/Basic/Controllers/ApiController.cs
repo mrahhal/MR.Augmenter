@@ -1,5 +1,6 @@
 ﻿using Basic.Models;
 using Microsoft.AspNetCore.Mvc;
+using MR;
 using MR.Augmenter;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -147,6 +148,15 @@ namespace Basic.Controllers
 			var model = new ModelU2();
 
 			return Ok(model);
+		}
+
+		[HttpGet("g1")]
+		public IActionResult GetG1()
+		{
+			var model = new GracefulExpandoObject();
+			model["Foo"] = "foo";
+
+			return Ok(new[] { model });
 		}
 	}
 }
