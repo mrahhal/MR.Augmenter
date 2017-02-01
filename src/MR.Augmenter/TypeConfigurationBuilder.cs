@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -42,6 +43,11 @@ namespace MR.Augmenter
 		private void BuildOne(Context context, Type type)
 		{
 			if (context.Current != null && context.Current.Built)
+			{
+				return;
+			}
+
+			if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
 			{
 				return;
 			}

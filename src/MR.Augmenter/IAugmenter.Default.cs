@@ -64,7 +64,9 @@ namespace MR.Augmenter
 								// The nested object is an array. This means we should apply the
 								// wrapper's configuration to all items in the array.
 
-								var nestedList = new List<object>();
+								var nestedList = (nestedObject as IList) != null ?
+									new List<object>((nestedObject as IList).Count) :
+									new List<object>();
 								AugmentArray(nestedObject, property, nestedList, state,
 									BuildList(property.TypeConfiguration, wrapper.TypeConfiguration));
 								root[property.PropertyInfo.Name] = nestedList;

@@ -131,6 +131,28 @@ namespace MR.Augmenter
 			modelTypeConfiguration.Properties.Should().HaveCount(1);
 		}
 
+		[Fact]
+		public void IgnoresEnumerables()
+		{
+			var list = new List<TypeConfiguration>
+			{
+			};
+			var builder = new TypeConfigurationBuilder(list);
+			var result = builder.Build(null, typeof(List<TestModel1>));
+			result.Should().BeNull();
+		}
+
+		[Fact]
+		public void IgnoresDictionaries()
+		{
+			var list = new List<TypeConfiguration>
+			{
+			};
+			var builder = new TypeConfigurationBuilder(list);
+			var result = builder.Build(null, typeof(Dictionary<string, TestModel1>));
+			result.Should().BeNull();
+		}
+
 		public class Step1Test : TestHost
 		{
 			[Fact]
