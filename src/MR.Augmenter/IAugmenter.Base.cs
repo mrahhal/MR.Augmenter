@@ -44,7 +44,7 @@ namespace MR.Augmenter
 		public virtual Task<object> AugmentAsync<T>(
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<IDictionary<string, object>> addState = null)
+			Action<IState> addState = null)
 		{
 			return AugmentCommonAsync(obj, configure, addState);
 		}
@@ -52,7 +52,7 @@ namespace MR.Augmenter
 		public Task<object> AugmentAsync<T>(
 			IEnumerable<T> obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<IDictionary<string, object>> addState = null)
+			Action<IState> addState = null)
 		{
 			return AugmentCommonAsync(obj, configure, addState);
 		}
@@ -62,7 +62,7 @@ namespace MR.Augmenter
 		public Task<object> AugmentAsync<T>(
 			T[] obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<IDictionary<string, object>> addState = null)
+			Action<IState> addState = null)
 		{
 			return AugmentAsync((IEnumerable<T>)obj, configure, addState);
 		}
@@ -70,7 +70,7 @@ namespace MR.Augmenter
 		private Task<object> AugmentCommonAsync<T>(
 			object obj,
 			Action<TypeConfiguration<T>> configure,
-			Action<IDictionary<string, object>> addState)
+			Action<IState> addState)
 		{
 			if (obj == null)
 			{
@@ -105,7 +105,7 @@ namespace MR.Augmenter
 
 		private async Task<object> AugmentInternal(
 			object obj, Type type,
-			Action<IDictionary<string, object>> addState,
+			Action<IState> addState,
 			Action<AugmentationContext, object> configure,
 			object configureState)
 		{
@@ -163,23 +163,22 @@ namespace MR.Augmenter
 			return AugmentCore(context);
 		}
 
-		private async Task<IReadOnlyDictionary<string, object>> CreateDictionaryAndAddStateAsync(
-			Action<IDictionary<string, object>> addState)
+		private async Task<IReadOnlyState> CreateDictionaryAndAddStateAsync(Action<IState> addState)
 		{
-			var dictionary = new GracefulDictionary();
+			var state = new State();
 
 			if (Configuration.ConfigureGlobalState != null)
 			{
-				var task = Configuration.ConfigureGlobalState(dictionary, Services);
+				var task = Configuration.ConfigureGlobalState(state, Services);
 				if (task != null)
 				{
 					await task;
 				}
 			}
 
-			addState?.Invoke(dictionary);
+			addState?.Invoke(state);
 
-			return new ReadOnlyDictionary<string, object>(dictionary);
+			return new ReadOnlyState(state);
 		}
 
 		private TypeConfiguration ResolveTypeConfiguration(Type type, bool alwaysBuild)

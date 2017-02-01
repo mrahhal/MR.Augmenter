@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace MR.Augmenter
 {
@@ -9,7 +8,7 @@ namespace MR.Augmenter
 		{
 		}
 
-		public AugmentationContext(object obj, TypeConfiguration typeConfiguration, IReadOnlyDictionary<string, object> state)
+		public AugmentationContext(object obj, TypeConfiguration typeConfiguration, IReadOnlyState state)
 		{
 			Object = obj;
 			TypeConfiguration = typeConfiguration;
@@ -24,6 +23,6 @@ namespace MR.Augmenter
 
 		public TypeConfiguration EphemeralTypeConfiguration { get; internal set; }
 
-		public IReadOnlyDictionary<string, object> State { get; }
+		public IReadOnlyState State { get; }
 	}
 }

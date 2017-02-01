@@ -20,7 +20,7 @@ namespace MR.Augmenter
 		Task<object> AugmentAsync<T>(
 			T obj,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<IDictionary<string, object>> addState = null);
+			Action<IState> addState = null);
 
 		/// <summary>
 		/// Augments a list of objects according to configuration.
@@ -33,7 +33,7 @@ namespace MR.Augmenter
 		Task<object> AugmentAsync<T>(
 			IEnumerable<T> list,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<IDictionary<string, object>> addState = null);
+			Action<IState> addState = null);
 
 		/// <summary>
 		/// Augments an array of objects according to configuration.
@@ -46,6 +46,6 @@ namespace MR.Augmenter
 		Task<object> AugmentAsync<T>(
 			T[] list,
 			Action<TypeConfiguration<T>> configure = null,
-			Action<IDictionary<string, object>> addState = null);
+			Action<IState> addState = null);
 	}
 }

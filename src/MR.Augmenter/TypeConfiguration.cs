@@ -30,7 +30,7 @@ namespace MR.Augmenter
 		{
 		}
 
-		public void ConfigureAdd(string name, Func<T, IReadOnlyDictionary<string, object>, object> valueFunc)
+		public void ConfigureAdd(string name, Func<T, IReadOnlyState, object> valueFunc)
 		{
 			Augments.Add(new Augment(name, AugmentKind.Add, (obj, state) =>
 			{
@@ -39,7 +39,7 @@ namespace MR.Augmenter
 			}));
 		}
 
-		public void ConfigureRemove(string name, Func<T, IReadOnlyDictionary<string, object>, object> valueFunc = null)
+		public void ConfigureRemove(string name, Func<T, IReadOnlyState, object> valueFunc = null)
 		{
 			Augments.Add(new Augment(name, AugmentKind.Remove, (obj, state) =>
 			{

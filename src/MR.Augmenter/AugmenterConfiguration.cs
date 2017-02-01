@@ -11,7 +11,7 @@ namespace MR.Augmenter
 
 		internal List<TypeConfiguration> TypeConfigurations { get; } = new List<TypeConfiguration>();
 
-		public Func<IDictionary<string, object>, IServiceProvider, Task> ConfigureGlobalState { get; set; }
+		public Func<IState, IServiceProvider, Task> ConfigureGlobalState { get; set; }
 
 		public void Configure<T>(Action<TypeConfiguration<T>> configure)
 		{

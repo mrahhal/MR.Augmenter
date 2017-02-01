@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using IState = System.Collections.Generic.IReadOnlyDictionary<string, object>;
 
 namespace MR.Augmenter
 {
@@ -32,7 +31,7 @@ namespace MR.Augmenter
 			return root;
 		}
 
-		private void AugmentObject(object obj, TypeConfiguration typeConfiguration, Dictionary<string, object> root, IState state)
+		private void AugmentObject(object obj, TypeConfiguration typeConfiguration, Dictionary<string, object> root, IReadOnlyState state)
 		{
 			foreach (var property in typeConfiguration.Properties)
 			{
@@ -103,7 +102,7 @@ namespace MR.Augmenter
 			object obj,
 			APropertyInfo property,
 			List<object> nestedList,
-			IState state,
+			IReadOnlyState state,
 			List<TypeConfiguration> typeConfigurations)
 		{
 			var asEnumerable = obj as IEnumerable;
@@ -128,7 +127,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		private void ApplyAugment(object obj, Dictionary<string, object> root, Augment augment, IState state)
+		private void ApplyAugment(object obj, Dictionary<string, object> root, Augment augment, IReadOnlyState state)
 		{
 			switch (augment.Kind)
 			{
@@ -142,7 +141,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		private void ApplyAddAugment(object obj, Dictionary<string, object> root, Augment augment, IState state)
+		private void ApplyAddAugment(object obj, Dictionary<string, object> root, Augment augment, IReadOnlyState state)
 		{
 			var value = augment.ValueFunc(obj, state);
 			if (ShouldIgnoreAugment(value))
@@ -153,7 +152,7 @@ namespace MR.Augmenter
 			root[augment.Name] = augment.ValueFunc(obj, state);
 		}
 
-		private void ApplyRemoveAugment(object obj, Dictionary<string, object> root, Augment augment, IState state)
+		private void ApplyRemoveAugment(object obj, Dictionary<string, object> root, Augment augment, IReadOnlyState state)
 		{
 			var value = augment.ValueFunc?.Invoke(obj, state);
 			if (ShouldIgnoreAugment(value))
