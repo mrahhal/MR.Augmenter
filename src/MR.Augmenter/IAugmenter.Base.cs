@@ -121,7 +121,7 @@ namespace MR.Augmenter
 				// No configuration
 				return obj;
 			}
-				
+
 			var state = await CreateDictionaryAndAddStateAsync(addState, obj);
 			var context = new AugmentationContext(obj, typeConfiguration, state);
 

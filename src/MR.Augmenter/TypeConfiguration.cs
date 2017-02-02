@@ -126,6 +126,11 @@ namespace MR.Augmenter
 			{
 				return false;
 			}
+			return Truthy(value);
+		}
+
+		protected static bool Truthy(object value)
+		{
 			return value == Boxed.True || value != Boxed.False;
 		}
 	}
