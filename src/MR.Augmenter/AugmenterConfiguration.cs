@@ -46,7 +46,7 @@ namespace MR.Augmenter
 				TypeConfigurations.Add(typeConfiguration);
 			}
 
-			configure?.Invoke(typeConfiguration);
+			configure(typeConfiguration);
 		}
 
 		public void Build()
@@ -84,7 +84,6 @@ namespace MR.Augmenter
 						throw new InvalidOperationException("You should extend from the generic version of TypeConfiguration.");
 					}
 
-					var entityType = type.BaseType.GenericTypeArguments[0];
 					var instance = (TypeConfiguration)Activator.CreateInstance(type.AsType());
 					TypeConfigurations.Add(instance);
 				}

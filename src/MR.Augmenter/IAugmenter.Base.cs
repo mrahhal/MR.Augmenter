@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using MR.Augmenter.Internal;
@@ -14,16 +14,13 @@ namespace MR.Augmenter
 	/// </summary>
 	public abstract class AugmenterBase : IAugmenter
 	{
-		private ConcurrentDictionary<Type, TypeConfiguration> _cache
+		private readonly ConcurrentDictionary<Type, TypeConfiguration> _cache
 			= new ConcurrentDictionary<Type, TypeConfiguration>();
 
-		private IReadOnlyDictionary<string, object> _emptyDictionary =
-			new ReadOnlyDictionary<string, object>(new Dictionary<string, object>());
+		private readonly Task<object> _nullResultTask = Task.FromResult((object)null);
+		private readonly TypeConfigurationBuilder _builder;
 
-		private Task<object> _nullResultTask = Task.FromResult((object)null);
-		private TypeConfigurationBuilder _builder;
-
-		public AugmenterBase(
+		protected AugmenterBase(
 			AugmenterConfiguration configuration,
 			IServiceProvider services)
 		{
@@ -96,6 +93,7 @@ namespace MR.Augmenter
 					{
 						var c = state as Action<TypeConfiguration<T>>;
 						var ephemeralTypeConfigration = new TypeConfiguration<T>();
+						Debug.Assert(c != null, "c != null");
 						c(ephemeralTypeConfigration);
 						context.EphemeralTypeConfiguration = ephemeralTypeConfigration;
 					},
@@ -131,6 +129,7 @@ namespace MR.Augmenter
 			{
 				var asEnumerable = obj as IEnumerable;
 				var list = (obj as IList) != null ? new List<object>((obj as IList).Count) : new List<object>();
+				Debug.Assert(asEnumerable != null, "asEnumerable != null");
 				foreach (var item in asEnumerable)
 				{
 					// We'll reuse the context.
@@ -167,13 +166,10 @@ namespace MR.Augmenter
 		{
 			var dictionary = new State();
 
-			if (Configuration.ConfigureGlobalState != null)
+			var task = Configuration.ConfigureGlobalState?.Invoke(dictionary, Services);
+			if (task != null)
 			{
-				var task = Configuration.ConfigureGlobalState(dictionary, Services);
-				if (task != null)
-				{
-					await task;
-				}
+				await task;
 			}
 
 			addState?.Invoke(dictionary);
@@ -186,9 +182,9 @@ namespace MR.Augmenter
 			return _cache.GetOrAdd(type, t =>
 			{
 				var typeConfiguration = Configuration.TypeConfigurations
-					.Where(c => type == c.Type)
-					.FirstOrDefault();
+					.FirstOrDefault(c => type == c.Type);
 
+				// ReSharper disable once ConvertIfStatementToNullCoalescingExpression
 				if (typeConfiguration == null)
 				{
 					typeConfiguration = _builder.Build(null, type, alwaysBuild);

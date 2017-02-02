@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using AArray = System.Collections.Generic.List<object>;
 using AObject = System.Collections.Generic.Dictionary<string, object>;
@@ -55,10 +56,10 @@ namespace MR.Augmenter
 					{
 						var ntc = GetNestedTypeConfiguration(typeConfiguration, property);
 						var done = false;
-						AugmenterWrapper wrapper = null;
 						if (property.TypeInfoWrapper.IsWrapper)
 						{
-							wrapper = nestedObject as AugmenterWrapper;
+							var wrapper = nestedObject as AugmenterWrapper;
+							Debug.Assert(wrapper != null, "wrapper != null");
 							nestedObject = wrapper.Object;
 
 							if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(nestedObject.GetType().GetTypeInfo()))
@@ -76,16 +77,15 @@ namespace MR.Augmenter
 							}
 						}
 
-						if (!done)
+						if (done) continue;
+
+						var nestedDict = new AObject();
+						foreach (var tc in BuildList(property.TypeConfiguration, ntc?.TypeConfiguration))
 						{
-							var nestedDict = new AObject();
-							foreach (var tc in BuildList(property.TypeConfiguration, ntc?.TypeConfiguration))
-							{
-								var nestedState = CreateNestedState(obj, ntc, state);
-								AugmentObject(nestedObject, tc, nestedDict, nestedState);
-							}
-							root[property.PropertyInfo.Name] = nestedDict;
+							var nestedState = CreateNestedState(obj, ntc, state);
+							AugmentObject(nestedObject, tc, nestedDict, nestedState);
 						}
+						root[property.PropertyInfo.Name] = nestedDict;
 					}
 					else
 					{
@@ -113,9 +113,10 @@ namespace MR.Augmenter
 			List<TypeConfiguration> typeConfigurations)
 		{
 			var asEnumerable = arr as IEnumerable;
+			Debug.Assert(asEnumerable != null, "asEnumerable != null");
 			foreach (var item in asEnumerable)
 			{
-				object actual = item;
+				var actual = item;
 				if (property.TypeInfoWrapper.IsWrapper)
 				{
 					var wrapper = item as AugmenterWrapper;
@@ -126,8 +127,10 @@ namespace MR.Augmenter
 				}
 
 				var dict = new AObject();
-				foreach (var tc in typeConfigurations)
+				// ReSharper disable once ForCanBeConvertedToForeach
+				for (var i = 0; i < typeConfigurations.Count; i++)
 				{
+					var tc = typeConfigurations[i];
 					var nestedState = CreateNestedState(obj, ntc, state);
 					AugmentObject(actual, tc, dict, nestedState);
 				}
@@ -135,7 +138,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		private NestedTypeConfiguration GetNestedTypeConfiguration(
+		private static NestedTypeConfiguration GetNestedTypeConfiguration(
 			TypeConfiguration typeConfiguration, APropertyInfo property)
 		{
 			if (!typeConfiguration.NestedConfigurations.IsValueCreated)
@@ -152,7 +155,7 @@ namespace MR.Augmenter
 			return ntc;
 		}
 
-		private IReadOnlyState CreateNestedState(object obj, NestedTypeConfiguration ntc, IReadOnlyState state)
+		private static IReadOnlyState CreateNestedState(object obj, NestedTypeConfiguration ntc, IReadOnlyState state)
 		{
 			if (ntc?.AddState == null)
 			{
@@ -176,6 +179,9 @@ namespace MR.Augmenter
 				case AugmentKind.Remove:
 					ApplyRemoveAugment(obj, root, augment, state);
 					break;
+
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 		}
 
@@ -201,17 +207,13 @@ namespace MR.Augmenter
 			root.Remove(augment.Name);
 		}
 
-		private List<TypeConfiguration> BuildList(TypeConfiguration typeConfiguration, TypeConfiguration ephemeral)
+		private static List<TypeConfiguration> BuildList(TypeConfiguration typeConfiguration, TypeConfiguration ephemeral)
 		{
 			var list = new List<TypeConfiguration>();
 
 			if (typeConfiguration != null)
 			{
-				foreach (var tc in typeConfiguration.BaseTypeConfigurations)
-				{
-					list.Add(tc);
-				}
-
+				list.AddRange(typeConfiguration.BaseTypeConfigurations);
 				list.Add(typeConfiguration);
 			}
 

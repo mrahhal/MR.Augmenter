@@ -2,12 +2,8 @@
 
 namespace MR.Augmenter
 {
-	public class NestedTypeConfiguration
+	public abstract class NestedTypeConfiguration
 	{
-		public NestedTypeConfiguration()
-		{
-		}
-
 		public TypeConfiguration TypeConfiguration { get; protected set; }
 
 		public Action<object, IReadOnlyState, IState> AddState { get; protected set; }
@@ -15,10 +11,6 @@ namespace MR.Augmenter
 
 	public class NestedTypeConfiguration<T, TNested> : NestedTypeConfiguration
 	{
-		public NestedTypeConfiguration()
-		{
-		}
-
 		public void SetTypeConfiguration(Action<TypeConfiguration<TNested>> configure)
 		{
 			var tc = new TypeConfiguration<TNested>();

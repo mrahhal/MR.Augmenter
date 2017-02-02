@@ -4,7 +4,7 @@ namespace MR.Augmenter
 {
 	public abstract class AugmenterWrapper
 	{
-		public AugmenterWrapper(object obj)
+		protected AugmenterWrapper(object obj)
 		{
 			Object = obj;
 		}

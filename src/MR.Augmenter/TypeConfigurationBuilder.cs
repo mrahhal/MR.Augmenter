@@ -9,7 +9,7 @@ namespace MR.Augmenter
 {
 	public class TypeConfigurationBuilder
 	{
-		private List<TypeConfiguration> _all;
+		private readonly List<TypeConfiguration> _all;
 
 		public TypeConfigurationBuilder(List<TypeConfiguration> all)
 		{
@@ -133,7 +133,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		private TypeConfiguration CreateConfigurationWithPropertiesOnly(Type baseType)
+		private static TypeConfiguration CreateConfigurationWithPropertiesOnly(Type baseType)
 		{
 			var tc = new TypeConfiguration(baseType);
 			foreach (var pi in baseType.GetTypeInfo().DeclaredProperties)
@@ -146,7 +146,7 @@ namespace MR.Augmenter
 
 		private class Context
 		{
-			private List<TypeConfiguration> _typeConfigurations = new List<TypeConfiguration>();
+			private readonly List<TypeConfiguration> _typeConfigurations = new List<TypeConfiguration>();
 
 			private Context()
 			{
@@ -158,7 +158,7 @@ namespace MR.Augmenter
 				Type = type;
 			}
 
-			public List<APropertyInfo> Properties { get; private set; } = new List<APropertyInfo>();
+			public List<APropertyInfo> Properties { get; } = new List<APropertyInfo>();
 
 			public TypeConfiguration Current { get; private set; }
 
@@ -178,8 +178,7 @@ namespace MR.Augmenter
 					return;
 				}
 
-				Current = new TypeConfiguration(Type);
-				Current.Built = true;
+				Current = new TypeConfiguration(Type) { Built = true };
 				Current.BaseTypeConfigurations.AddRange(_typeConfigurations);
 			}
 

@@ -58,11 +58,7 @@ namespace MR.Augmenter
 		{
 			Add(name, (x, state) =>
 			{
-				if (!predicate(x, state))
-				{
-					return AugmentationValue.Ignore;
-				}
-				return valueFunc(x, state);
+				return predicate(x, state) ? valueFunc(x, state) : AugmentationValue.Ignore;
 			});
 		}
 
