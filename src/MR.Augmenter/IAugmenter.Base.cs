@@ -165,20 +165,20 @@ namespace MR.Augmenter
 
 		private async Task<IReadOnlyState> CreateDictionaryAndAddStateAsync(Action<IState> addState)
 		{
-			var state = new State();
+			var dictionary = new State();
 
 			if (Configuration.ConfigureGlobalState != null)
 			{
-				var task = Configuration.ConfigureGlobalState(state, Services);
+				var task = Configuration.ConfigureGlobalState(dictionary, Services);
 				if (task != null)
 				{
 					await task;
 				}
 			}
 
-			addState?.Invoke(state);
+			addState?.Invoke(dictionary);
 
-			return new ReadOnlyState(state);
+			return new ReadOnlyState(dictionary);
 		}
 
 		private TypeConfiguration ResolveTypeConfiguration(Type type, bool alwaysBuild)

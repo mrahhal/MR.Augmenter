@@ -168,13 +168,12 @@ namespace MR.Augmenter
 			var list = new List<TypeConfiguration>();
 
 			if (typeConfiguration != null)
+			{
 				foreach (var tc in typeConfiguration.BaseTypeConfigurations)
 				{
 					list.Add(tc);
 				}
 
-			if (typeConfiguration != null)
-			{
 				list.Add(typeConfiguration);
 			}
 
