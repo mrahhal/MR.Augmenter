@@ -49,6 +49,15 @@ namespace MR.Augmenter
 		public TestModelNested Nested { get; set; } = new TestModelNested();
 	}
 
+	public class TestModelWithNestedArray
+	{
+		public int Id { get; set; } = 42;
+		public string Some1 { get; set; } = "43";
+		public string Some2 { get; set; } = "44";
+		public List<TestModelNested> NestedList { get; set; } = new List<TestModelNested>();
+		public TestModelNested[] NestedArray { get; set; } = new TestModelNested[2];
+	}
+
 	public class TestModelNested
 	{
 		public int Id { get; set; } = 43;

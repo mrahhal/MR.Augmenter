@@ -91,5 +91,69 @@ namespace MR.Augmenter
 				o.ValueFunc.Should().BeNull();
 			});
 		}
+
+		[Fact]
+		public void ConfigureNested()
+		{
+			var tc = new TypeConfiguration<TestModelWithNested>();
+
+			tc.ConfigureNested(x => x.Nested, ntc =>
+			{
+				ntc.SetAddState((x, s1, s2) =>
+				{
+					s2["ParentId"] = x.Id;
+				});
+			});
+
+			tc.NestedConfigurations.Value.Should().HaveCount(1);
+			tc.NestedConfigurations.Value.First().Invoking(c =>
+			{
+				c.Key.Name.Should().Be(nameof(TestModelWithNested.Nested));
+				c.Value.Should().NotBeNull();
+			});
+		}
+
+		[Fact]
+		public void ConfigureNestedArray()
+		{
+			var tc = new TypeConfiguration<TestModelWithNestedArray>();
+
+			tc.ConfigureNested(x => x.NestedArray, ntc =>
+			{
+				ntc.SetAddState((x, s1, s2) =>
+				{
+					s2["ParentId"] = x.Id;
+				});
+			});
+
+			tc.NestedConfigurations.Value.Should().HaveCount(1);
+			tc.NestedConfigurations.Value.First().Invoking(c =>
+			{
+				c.Key.Name.Should().Be(nameof(TestModelWithNested.Nested));
+				c.Value.Should().NotBeNull();
+			});
+		}
+
+		[Fact]
+		public void ConfigureNested_AddState()
+		{
+			var tc = new TypeConfiguration<TestModelWithNested>();
+
+			tc.ConfigureNested(x => x.Nested, ntc =>
+			{
+				ntc.SetAddState((x, s1, s2) =>
+				{
+					s2["ParentId"] = x.Id;
+				});
+			});
+
+			var nested = tc.NestedConfigurations.Value.First();
+			var state1 = new State();
+			var state2 = new State();
+			var model = new TestModelWithNested();
+			nested.Value.AddState(model, state1, state2);
+
+			state2["ParentId"].Should().Be(model.Id);
+		}
 	}
 }

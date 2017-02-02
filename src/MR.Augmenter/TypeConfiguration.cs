@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq.Expressions;
+using System.Reflection;
+using MR.Augmenter.Internal;
 
 namespace MR.Augmenter
 {
@@ -21,6 +24,9 @@ namespace MR.Augmenter
 		internal List<TypeConfiguration> BaseTypeConfigurations { get; } = new List<TypeConfiguration>();
 
 		internal List<APropertyInfo> Properties { get; } = new List<APropertyInfo>();
+
+		internal Lazy<Dictionary<PropertyInfo, NestedTypeConfiguration>> NestedConfigurations { get; } =
+			new Lazy<Dictionary<PropertyInfo, NestedTypeConfiguration>>();
 	}
 
 	public class TypeConfiguration<T> : TypeConfiguration
@@ -73,6 +79,33 @@ namespace MR.Augmenter
 				var concrete = (T)obj;
 				return valueFunc(concrete, state);
 			}));
+		}
+
+		public void ConfigureNested<TNested>(
+			Expression<Func<T, TNested>> nestedMemberExpression,
+			Action<NestedTypeConfiguration<T, TNested>> configure)
+			where TNested : class
+		{
+			ConfigureNestedInternal(nestedMemberExpression, configure);
+		}
+
+		public void ConfigureNestedArray<TNested>(
+			Expression<Func<T, IEnumerable<TNested>>> nestedMemberExpression,
+			Action<NestedTypeConfiguration<T, TNested>> configure)
+			where TNested : class
+		{
+			ConfigureNestedInternal(nestedMemberExpression, configure);
+		}
+
+		private void ConfigureNestedInternal<TNested>(
+			LambdaExpression nestedMemberExpression,
+			Action<NestedTypeConfiguration<T, TNested>> configure)
+			where TNested : class
+		{
+			var pi = nestedMemberExpression.GetSimplePropertyAccess();
+			var nestedTc = new NestedTypeConfiguration<T, TNested>();
+			configure(nestedTc);
+			NestedConfigurations.Value.Add(pi, nestedTc);
 		}
 
 		[Obsolete("Use Remove instead.")]

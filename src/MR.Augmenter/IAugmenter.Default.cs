@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using AArray = System.Collections.Generic.List<object>;
+using AObject = System.Collections.Generic.Dictionary<string, object>;
 
 namespace MR.Augmenter
 {
@@ -21,7 +23,7 @@ namespace MR.Augmenter
 		protected override object AugmentCore(AugmentationContext context)
 		{
 			var obj = context.Object;
-			var root = new Dictionary<string, object>();
+			var root = new AObject();
 
 			foreach (var typeConfiguration in BuildList(context.TypeConfiguration, context.EphemeralTypeConfiguration))
 			{
@@ -31,7 +33,7 @@ namespace MR.Augmenter
 			return root;
 		}
 
-		private void AugmentObject(object obj, TypeConfiguration typeConfiguration, Dictionary<string, object> root, IReadOnlyState state)
+		private void AugmentObject(object obj, TypeConfiguration typeConfiguration, AObject root, IReadOnlyState state)
 		{
 			foreach (var property in typeConfiguration.Properties)
 			{
@@ -51,6 +53,7 @@ namespace MR.Augmenter
 					}
 					else if (!property.TypeInfoWrapper.IsArray)
 					{
+						var ntc = GetNestedTypeConfiguration(typeConfiguration, property);
 						var done = false;
 						AugmenterWrapper wrapper = null;
 						if (property.TypeInfoWrapper.IsWrapper)
@@ -64,9 +67,9 @@ namespace MR.Augmenter
 								// wrapper's configuration to all items in the array.
 
 								var nestedList = (nestedObject as IList) != null ?
-									new List<object>((nestedObject as IList).Count) :
-									new List<object>();
-								AugmentArray(nestedObject, property, nestedList, state,
+									new AArray((nestedObject as IList).Count) :
+									new AArray();
+								AugmentArray(obj, ntc, nestedObject, property, nestedList, state,
 									BuildList(property.TypeConfiguration, wrapper.TypeConfiguration));
 								root[property.PropertyInfo.Name] = nestedList;
 								done = true;
@@ -75,18 +78,20 @@ namespace MR.Augmenter
 
 						if (!done)
 						{
-							var nestedDict = new Dictionary<string, object>();
-							foreach (var item in BuildList(property.TypeConfiguration, null))
+							var nestedDict = new AObject();
+							foreach (var tc in BuildList(property.TypeConfiguration, ntc?.TypeConfiguration))
 							{
-								AugmentObject(nestedObject, item, nestedDict, state);
+								var nestedState = CreateNestedState(obj, ntc, state);
+								AugmentObject(nestedObject, tc, nestedDict, nestedState);
 							}
 							root[property.PropertyInfo.Name] = nestedDict;
 						}
 					}
 					else
 					{
-						var nestedList = new List<object>();
-						AugmentArray(nestedObject, property, nestedList, state, BuildList(property.TypeConfiguration, null));
+						var ntc = GetNestedTypeConfiguration(typeConfiguration, property);
+						var nestedList = new AArray();
+						AugmentArray(obj, ntc, nestedObject, property, nestedList, state, BuildList(property.TypeConfiguration, ntc?.TypeConfiguration));
 						root[property.PropertyInfo.Name] = nestedList;
 					}
 				}
@@ -100,12 +105,14 @@ namespace MR.Augmenter
 
 		private void AugmentArray(
 			object obj,
+			NestedTypeConfiguration ntc,
+			object arr,
 			APropertyInfo property,
-			List<object> nestedList,
+			AArray nestedList,
 			IReadOnlyState state,
 			List<TypeConfiguration> typeConfigurations)
 		{
-			var asEnumerable = obj as IEnumerable;
+			var asEnumerable = arr as IEnumerable;
 			foreach (var item in asEnumerable)
 			{
 				object actual = item;
@@ -118,16 +125,47 @@ namespace MR.Augmenter
 					}
 				}
 
-				var dict = new Dictionary<string, object>();
+				var dict = new AObject();
 				foreach (var tc in typeConfigurations)
 				{
-					AugmentObject(actual, tc, dict, state);
+					var nestedState = CreateNestedState(obj, ntc, state);
+					AugmentObject(actual, tc, dict, nestedState);
 				}
 				nestedList.Add(dict);
 			}
 		}
 
-		private void ApplyAugment(object obj, Dictionary<string, object> root, Augment augment, IReadOnlyState state)
+		private NestedTypeConfiguration GetNestedTypeConfiguration(
+			TypeConfiguration typeConfiguration, APropertyInfo property)
+		{
+			if (!typeConfiguration.NestedConfigurations.IsValueCreated)
+			{
+				return null;
+			}
+
+			NestedTypeConfiguration ntc;
+			if (!typeConfiguration.NestedConfigurations.Value.TryGetValue(property.PropertyInfo, out ntc))
+			{
+				return null;
+			}
+
+			return ntc;
+		}
+
+		private IReadOnlyState CreateNestedState(object obj, NestedTypeConfiguration ntc, IReadOnlyState state)
+		{
+			if (ntc?.AddState == null)
+			{
+				return state;
+			}
+
+			var addedState = new State();
+			ntc.AddState(obj, state, addedState);
+			var newState = new State(state, addedState);
+			return new ReadOnlyState(newState);
+		}
+
+		private void ApplyAugment(object obj, AObject root, Augment augment, IReadOnlyState state)
 		{
 			switch (augment.Kind)
 			{
@@ -141,7 +179,7 @@ namespace MR.Augmenter
 			}
 		}
 
-		private void ApplyAddAugment(object obj, Dictionary<string, object> root, Augment augment, IReadOnlyState state)
+		private void ApplyAddAugment(object obj, AObject root, Augment augment, IReadOnlyState state)
 		{
 			var value = augment.ValueFunc(obj, state);
 			if (ShouldIgnoreAugment(value))
@@ -152,7 +190,7 @@ namespace MR.Augmenter
 			root[augment.Name] = augment.ValueFunc(obj, state);
 		}
 
-		private void ApplyRemoveAugment(object obj, Dictionary<string, object> root, Augment augment, IReadOnlyState state)
+		private void ApplyRemoveAugment(object obj, AObject root, Augment augment, IReadOnlyState state)
 		{
 			var value = augment.ValueFunc?.Invoke(obj, state);
 			if (ShouldIgnoreAugment(value))

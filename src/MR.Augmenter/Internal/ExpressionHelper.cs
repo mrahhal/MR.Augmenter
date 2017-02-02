@@ -74,5 +74,22 @@ namespace MR.Augmenter.Internal
 
 			return Expression.Convert(expression, targetType);
 		}
+
+		public static PropertyInfo GetSimplePropertyAccess(this LambdaExpression expression)
+		{
+			var memberExpression = expression.Body.RemoveConvert() as MemberExpression;
+			var pi = memberExpression?.Member as PropertyInfo;
+			return pi;
+		}
+
+		public static Expression RemoveConvert(this Expression expression)
+		{
+			while (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked)
+			{
+				expression = ((UnaryExpression)expression).Operand;
+			}
+
+			return expression;
+		}
 	}
 }

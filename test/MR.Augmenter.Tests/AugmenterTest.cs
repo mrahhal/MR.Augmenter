@@ -305,5 +305,125 @@ namespace MR.Augmenter
 				result.Should().NotContainKey("Bar");
 			}
 		}
+
+		public class NestedConfigureTest : AugmenterTest
+		{
+			public NestedConfigureTest()
+			{
+				var configuration = new AugmenterConfiguration();
+
+				configuration.Configure<NestedConfigureModels.Model1>(c =>
+				{
+					c.Add("Bar", (x, _) => $"({x.Id})");
+					c.Remove(nameof(NestedConfigureModels.Model1.Ex));
+					c.ConfigureNested(x => x.Nested1, nc =>
+					{
+						nc.SetAddState((m, s1, s2) =>
+						{
+							s2["ParentId"] = m.Id;
+						});
+
+						nc.SetTypeConfiguration(ntc =>
+						{
+							ntc.Add("Some", (x, state) => "some");
+						});
+					});
+				});
+				configuration.Configure<NestedConfigureModels.Model2>(c =>
+				{
+				});
+				configuration.Configure<NestedConfigureModels.Model3>(c =>
+				{
+					c.ConfigureNestedArray(x => x.Nested, nc =>
+					{
+						nc.SetAddState((m, s1, s2) =>
+						{
+							s2["ParentId"] = m.Id;
+						});
+
+						nc.SetTypeConfiguration(ntc =>
+						{
+							ntc.Add("Some", (x, state) => "some");
+						});
+					});
+				});
+				configuration.Configure<NestedConfigureModels.Model4>(c =>
+				{
+					c.ConfigureNestedArray(x => x.Nested, nc =>
+					{
+						nc.SetAddState((m, s1, s2) =>
+						{
+							s2["ParentId"] = m.Id;
+						});
+
+						nc.SetTypeConfiguration(ntc =>
+						{
+							ntc.Add("Some", (x, state) => "some");
+						});
+					});
+				});
+				configuration.Configure<NestedConfigureModels.ModelNested>(c =>
+				{
+					c.AddIf("ParentId", "ParentId", (m, s) => s["ParentId"]);
+				});
+
+				configuration.Build();
+				_configuration = configuration;
+				_fixture = MocksHelper.Augmenter(_configuration);
+			}
+
+			[Fact]
+			public async Task Picks_up_nested_state_and_configuration()
+			{
+				var model = new NestedConfigureModels.Model2();
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				var nested = result["Nested1"].Cast<AObject>();
+				nested["ParentId"].Cast<int>().Should().Be(model.Id);
+				nested["Some"].Cast<string>().Should().Be("some");
+			}
+
+			[Fact]
+			public async Task Other_entities_of_the_same_type_are_not_affected()
+			{
+				var model = new NestedConfigureModels.Model2();
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				var nested = result["Nested2"].Cast<AObject>();
+				nested.Should().NotContainKeys("ParentId", "Some");
+			}
+
+			[Fact]
+			public async Task Works_with_enumerables()
+			{
+				var model = new NestedConfigureModels.Model3();
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				var nested = result["Nested"].Cast<AArray>();
+				foreach (var item in nested)
+				{
+					item.Cast<AObject>()["ParentId"].Should().Be(model.Id);
+					item.Cast<AObject>()["Some"].Should().Be("some");
+				}
+			}
+
+			[Fact]
+			public async Task Works_with_arrays()
+			{
+				var model = new NestedConfigureModels.Model4();
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				var nested = result["Nested"].Cast<AArray>();
+				foreach (var item in nested)
+				{
+					item.Cast<AObject>()["ParentId"].Should().Be(model.Id);
+					item.Cast<AObject>()["Some"].Should().Be("some");
+				}
+			}
+		}
 	}
 }
