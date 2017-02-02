@@ -83,7 +83,7 @@ namespace Basic.Controllers
 			// some configuration that will be used when doing the augmentation.
 			var model = new ModelB();
 			var wrapper = new AugmenterWrapper<ModelB>(model);
-			wrapper.SetConfiguration(c =>
+			wrapper.SetTypeConfiguration(c =>
 			{
 				c.Add("Baz", (x, state) => x.Id);
 			});
@@ -98,7 +98,7 @@ namespace Basic.Controllers
 			// some configuration that will be used when doing the augmentation.
 			var model = new ModelB();
 			var wrapper = new AugmenterWrapper<ModelB>(model);
-			wrapper.SetConfiguration(c =>
+			wrapper.SetTypeConfiguration(c =>
 			{
 				c.Add("Baz", (x, state) => x.Id);
 			});

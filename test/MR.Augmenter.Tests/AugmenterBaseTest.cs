@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using MR.Augmenter;
 using Xunit;
 
 namespace MR.Augmenter
@@ -187,7 +186,7 @@ namespace MR.Augmenter
 					var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
 					var model = new TestModel1();
 					var wrapper = new AugmenterWrapper<TestModel1>(model);
-					wrapper.SetConfiguration(c =>
+					wrapper.SetTypeConfiguration(c =>
 					{
 						c.Add("Baz", (x, state) => x.Id);
 					});
@@ -200,6 +199,24 @@ namespace MR.Augmenter
 					context.TypeConfiguration.Type.Should().Be(typeof(TestModel1));
 					context.EphemeralTypeConfiguration.Type.Should().Be(typeof(TestModel1));
 					context.EphemeralTypeConfiguration.Augments.Should().HaveCount(1);
+				}
+
+				[Fact]
+				public async Task PicksUpWrapperState()
+				{
+					var fixture = MocksHelper.AugmenterBase(CreateCommonConfiguration());
+					var model = new TestModel1();
+					var wrapper = new AugmenterWrapper<TestModel1>(model);
+					wrapper.SetAddState((x, s) =>
+					{
+						s["Baz"] = x.Id;
+					});
+
+					await fixture.AugmentAsync(wrapper);
+
+					fixture.Contexts.Should().HaveCount(1);
+					var context = fixture.Contexts.First();
+					context.State["Baz"].Cast<int>().Should().Be(model.Id);
 				}
 			}
 		}

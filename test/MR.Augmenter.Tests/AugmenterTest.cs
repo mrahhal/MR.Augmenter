@@ -89,7 +89,7 @@ namespace MR.Augmenter
 					new TestModelForWrapping() { Id = 42, Model = new TestModel1() },
 					new TestModelForWrapping() { Id = 43, Model = new TestModel1() }
 				});
-				wrapper.SetConfiguration(c =>
+				wrapper.SetTypeConfiguration(c =>
 				{
 					c.Add("Foo", (x, state) => $"{x.Id}-foo");
 				});

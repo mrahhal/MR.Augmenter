@@ -121,8 +121,8 @@ namespace MR.Augmenter
 				// No configuration
 				return obj;
 			}
-
-			var state = await CreateDictionaryAndAddStateAsync(addState);
+				
+			var state = await CreateDictionaryAndAddStateAsync(addState, obj);
 			var context = new AugmentationContext(obj, typeConfiguration, state);
 
 			if (tiw.IsArray)
@@ -162,19 +162,22 @@ namespace MR.Augmenter
 			return AugmentCore(context);
 		}
 
-		private async Task<IReadOnlyState> CreateDictionaryAndAddStateAsync(Action<IState> addState)
+		private async Task<IReadOnlyState> CreateDictionaryAndAddStateAsync(Action<IState> addState, object obj)
 		{
-			var dictionary = new State();
+			var state = new State();
 
-			var task = Configuration.ConfigureGlobalState?.Invoke(dictionary, Services);
+			var task = Configuration.ConfigureGlobalState?.Invoke(state, Services);
 			if (task != null)
 			{
 				await task;
 			}
 
-			addState?.Invoke(dictionary);
+			addState?.Invoke(state);
 
-			return new ReadOnlyState(dictionary);
+			var wrapper = obj as AugmenterWrapper;
+			wrapper?.AddState?.Invoke(wrapper.Object, state);
+
+			return new ReadOnlyState(state);
 		}
 
 		private TypeConfiguration ResolveTypeConfiguration(Type type, bool alwaysBuild)
