@@ -117,7 +117,7 @@ For a lot more options checkout the samples.
 
 [TODO]
 
-# Samples
+## Samples
 Check out the [`samples`](samples) under "samples/" for more practical use cases.
 
 #### [`Basic`](samples/Basic)
