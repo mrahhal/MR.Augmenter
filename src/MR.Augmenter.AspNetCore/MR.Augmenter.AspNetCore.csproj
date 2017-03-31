@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Take control of the data your API returns.</Description>
+		<Authors>Mohammad Rahhal</Authors>
+		<TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+		<AssemblyName>MR.Augmenter.AspNetCore</AssemblyName>
+		<PackageId>MR.Augmenter.AspNetCore</PackageId>
+		<PackageTags>aspnetcore;augmenter;serialization;api;models</PackageTags>
+		<PackageProjectUrl>https://github.com/mrahhal/MR.Augmenter</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/mrahhal/MR.Augmenter/blob/master/LICENSE.txt</PackageLicenseUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MR.Augmenter\MR.Augmenter.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+		<Reference Include="System" />
+		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+
+</Project>

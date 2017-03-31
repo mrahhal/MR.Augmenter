@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Take control of the data your API returns.</Description>
+		<Authors>Mohammad Rahhal</Authors>
+		<TargetFramework>netstandard1.1</TargetFramework>
+		<AssemblyName>MR.Augmenter</AssemblyName>
+		<PackageId>MR.Augmenter</PackageId>
+		<PackageTags>augmenter;serialization;api;models</PackageTags>
+		<PackageProjectUrl>https://github.com/mrahhal/MR.Augmenter</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/mrahhal/MR.Augmenter/blob/master/LICENSE.txt</PackageLicenseUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
+		<PackageReference Include="GracefulExpandoObject" Version="1.6.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+		<PackageReference Include="System.ObjectModel" Version="4.3.0" />
+	</ItemGroup>
+
+</Project>
