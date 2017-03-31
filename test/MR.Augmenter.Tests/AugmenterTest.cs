@@ -106,6 +106,26 @@ namespace MR.Augmenter
 				list[0].Cast<AObject>()["Foo"].Cast<string>().Should().Be("42-foo");
 				list[1].Cast<AObject>()["Foo"].Cast<string>().Should().Be("43-foo");
 			}
+
+			[Fact]
+			public async Task WrapperAroundArray_Direct()
+			{
+				var wrapper = new AugmenterWrapper<TestModelForWrapping>(new[]
+				{
+					new TestModelForWrapping() { Id = 42, Model = new TestModel1() },
+					new TestModelForWrapping() { Id = 43, Model = new TestModel1() }
+				});
+				wrapper.SetTypeConfiguration(c =>
+				{
+					c.Add("Foo", (x, state) => $"{x.Id}-foo");
+				});
+
+				var result = await _fixture.AugmentAsync(wrapper) as AArray;
+
+				result.Should().NotBeNull().And.Subject.Should().HaveCount(2);
+				result[0].Cast<AObject>()["Foo"].Cast<string>().Should().Be("42-foo");
+				result[1].Cast<AObject>()["Foo"].Cast<string>().Should().Be("43-foo");
+			}
 		}
 
 		public class NestedTest : AugmenterTest

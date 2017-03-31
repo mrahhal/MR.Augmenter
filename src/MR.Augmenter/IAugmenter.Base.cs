@@ -138,6 +138,22 @@ namespace MR.Augmenter
 				}
 				return list;
 			}
+			else if (tiw.IsWrapper &&
+				ReflectionHelper.IsEnumerableOrArrayType((((AugmenterWrapper)obj).Object).GetType(), out var elementType))
+			{
+				context.EphemeralTypeConfiguration = ((AugmenterWrapper)obj).TypeConfiguration;
+				obj = (((AugmenterWrapper)obj).Object);
+				tiw = TypeInfoResolver.ResolveTypeInfo(elementType);
+				var asEnumerable = obj as IEnumerable;
+				var list = (obj as IList) != null ? new List<object>((obj as IList).Count) : new List<object>();
+				foreach (var item in asEnumerable)
+				{
+					// We'll reuse the context.
+					context.Object = item;
+					list.Add(AugmentOne(obj, configure, configureState, tiw, context));
+				}
+				return list;
+			}
 			else
 			{
 				return AugmentOne(obj, configure, configureState, tiw, context);
