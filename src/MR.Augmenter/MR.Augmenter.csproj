@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="../../build/version.props" />
+
 	<PropertyGroup>
 		<Description>Take control of the data your API returns.</Description>
 		<Authors>Mohammad Rahhal</Authors>
