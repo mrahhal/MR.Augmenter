@@ -27,14 +27,12 @@ namespace MR.Augmenter
 					return next.Invoke();
 				}
 
-				var objectResult = context.Result as ObjectResult;
-				if (objectResult != null)
+				if (context.Result is ObjectResult objectResult)
 				{
 					return OnResultExecutionCoreAsync(context, next, objectResult.Value, v => objectResult.Value = v);
 				}
 
-				var jsonResult = context.Result as JsonResult;
-				if (jsonResult != null)
+				if (context.Result is JsonResult jsonResult)
 				{
 					return OnResultExecutionCoreAsync(context, next, jsonResult.Value, v => jsonResult.Value = v);
 				}

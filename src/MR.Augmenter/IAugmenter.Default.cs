@@ -119,8 +119,7 @@ namespace MR.Augmenter
 				var actual = item;
 				if (property.TypeInfoWrapper.IsWrapper)
 				{
-					var wrapper = item as AugmenterWrapper;
-					if (wrapper != null)
+					if (item is AugmenterWrapper wrapper)
 					{
 						actual = wrapper.Object;
 					}
@@ -146,8 +145,8 @@ namespace MR.Augmenter
 				return null;
 			}
 
-			NestedTypeConfiguration ntc;
-			if (!typeConfiguration.NestedConfigurations.Value.TryGetValue(property.PropertyInfo, out ntc))
+			if (!typeConfiguration.NestedConfigurations.Value.TryGetValue(
+				property.PropertyInfo, out NestedTypeConfiguration ntc))
 			{
 				return null;
 			}

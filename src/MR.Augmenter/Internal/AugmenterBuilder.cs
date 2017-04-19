@@ -7,12 +7,7 @@ namespace MR.Augmenter.Internal
 	{
 		public AugmenterBuilder(IServiceCollection services)
 		{
-			if (services == null)
-			{
-				throw new ArgumentNullException(nameof(services));
-			}
-
-			Services = services;
+			Services = services ?? throw new ArgumentNullException(nameof(services));
 		}
 
 		public IServiceCollection Services { get; }
