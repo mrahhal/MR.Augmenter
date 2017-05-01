@@ -20,6 +20,16 @@ namespace Basic.TypeConfigurations
 			// Add if the "key" in the state evaluates to a truthy
 			// value (basically that it exists and it's not false)
 			AddIf("Bar", "Bar", (x, state) => state["Bar"]);
+
+			// Do some custom work. Careful, here you're not protected.
+			Custom((x, d) =>
+			{
+				// d is a normal dictionary, do whatever you need to do.
+
+				d["EnableThatThing"] = /* anything really */ Boxed.True;
+
+				//d.Remove(nameof(ModelA.Id));
+			});
 		}
 	}
 }
