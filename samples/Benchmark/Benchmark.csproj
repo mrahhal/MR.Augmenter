@@ -4,11 +4,6 @@
 		<TargetFrameworks>net451;netcoreapp1.1</TargetFrameworks>
 		<AssemblyName>Benchmark</AssemblyName>
 		<OutputType>Exe</OutputType>
-		<PackageId>Benchmark</PackageId>
-		<RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">1.1.1</RuntimeFrameworkVersion>
-		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
 	</PropertyGroup>
 
 	<ItemGroup>

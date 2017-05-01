@@ -6,7 +6,6 @@
 		<AssemblyName>Basic</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<PackageId>Basic</PackageId>
-		<RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

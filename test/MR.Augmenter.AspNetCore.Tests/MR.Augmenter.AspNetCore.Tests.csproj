@@ -2,10 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netcoreapp1.1;net451</TargetFrameworks>
-		<AssemblyName>MR.Augmenter.AspNetCore.Tests</AssemblyName>
-		<PackageId>MR.Augmenter.AspNetCore.Tests</PackageId>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-		<RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">1.1.0</RuntimeFrameworkVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -15,8 +12,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-		<PackageReference Include="xunit" Version="2.2.0" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
