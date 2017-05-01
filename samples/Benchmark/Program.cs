@@ -146,6 +146,10 @@ namespace Benchmark
 				config.Configure<ModelA>(c =>
 				{
 					c.Remove(nameof(ModelA.Secret));
+					c.Custom((x, d) =>
+					{
+						d["Opt"] = Boxed.True;
+					});
 				});
 
 				config.Configure<ModelWithNested>(c =>

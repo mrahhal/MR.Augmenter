@@ -97,13 +97,14 @@ namespace MR.Augmenter
 				}
 			}
 
-			foreach (var augment in typeConfiguration.Augments)
+			// perf: Avoid allocations.
+			for (int i = 0; i < typeConfiguration.Augments.Count; i++)
 			{
-				ApplyAugment(obj, root, augment, state);
+				ApplyAugment(obj, root, typeConfiguration.Augments[i], state);
 			}
-			foreach (var customThunk in typeConfiguration.CustomThunks)
+			for (int i = 0; i < typeConfiguration.CustomThunks.Count; i++)
 			{
-				ApplyCustomThunk(obj, root, customThunk);
+				ApplyCustomThunk(obj, root, typeConfiguration.CustomThunks[i]);
 			}
 		}
 
