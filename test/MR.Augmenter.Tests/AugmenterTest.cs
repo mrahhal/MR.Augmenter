@@ -126,6 +126,32 @@ namespace MR.Augmenter
 				result[0].Cast<AObject>()["Foo"].Cast<string>().Should().Be("42-foo");
 				result[1].Cast<AObject>()["Foo"].Cast<string>().Should().Be("43-foo");
 			}
+
+			[Fact]
+			public async Task Custom()
+			{
+				var configuration = new AugmenterConfiguration();
+				configuration.Configure<TestModel1>(c =>
+				{
+					c.Custom((x, d) =>
+					{
+						d["Opt1"] = Boxed.True;
+						d["Opt2"] = Boxed.False;
+						d["Opt3"] = "something";
+						d.Remove(nameof(TestModel1.Foo));
+					});
+				});
+				configuration.Build();
+				var augmenter = MocksHelper.Augmenter(configuration);
+				var model = new TestModel1();
+
+				var result = (await augmenter.AugmentAsync(model)).Cast<AObject>();
+
+				result["Opt1"].Should().Be(Boxed.True);
+				result["Opt2"].Should().Be(Boxed.False);
+				result["Opt3"].Should().Be("something");
+				result.Should().NotContainKey(nameof(TestModel1.Foo));
+			}
 		}
 
 		public class NestedTest : AugmenterTest

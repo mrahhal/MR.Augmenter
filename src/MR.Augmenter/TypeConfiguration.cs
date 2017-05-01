@@ -10,6 +10,9 @@ namespace MR.Augmenter
 	[DebuggerDisplay("Augments: {Augments.Count}, Base: {BaseTypeConfigurations.Count}, Properties: {Properties.Count}")]
 	public class TypeConfiguration
 	{
+		private static readonly List<Action<object, Dictionary<string, object>>> EmptyThunkList =
+			new List<Action<object, Dictionary<string, object>>>();
+
 		public TypeConfiguration(Type type)
 		{
 			Type = type;
@@ -20,6 +23,14 @@ namespace MR.Augmenter
 		public bool Built { get; internal set; }
 
 		internal List<Augment> Augments { get; } = new List<Augment>();
+
+		internal List<Action<object, Dictionary<string, object>>> CustomThunks = EmptyThunkList;
+
+		internal void AddCustomThunk(Action<object, Dictionary<string, object>> thunk)
+		{
+			if (CustomThunks == EmptyThunkList) CustomThunks = new List<Action<object, Dictionary<string, object>>>();
+			CustomThunks.Add(thunk);
+		}
 
 		internal List<TypeConfiguration> BaseTypeConfigurations { get; } = new List<TypeConfiguration>();
 
@@ -70,6 +81,8 @@ namespace MR.Augmenter
 
 		public void Add(string name, Func<T, IReadOnlyState, object> valueFunc)
 		{
+			if (name == null) throw new ArgumentNullException(nameof(name));
+
 			Augments.Add(new Augment(name, AugmentKind.Add, (obj, state) =>
 			{
 				var concrete = (T)obj;
@@ -112,6 +125,8 @@ namespace MR.Augmenter
 
 		public void Remove(string name, Func<T, IReadOnlyState, object> valueFunc = null)
 		{
+			if (name == null) throw new ArgumentNullException(nameof(name));
+
 			Augments.Add(new Augment(name, AugmentKind.Remove, (obj, state) =>
 			{
 				var concrete = (T)obj;
@@ -119,10 +134,20 @@ namespace MR.Augmenter
 			}));
 		}
 
+		public void Custom(Action<T, Dictionary<string, object>> customThunk)
+		{
+			if (customThunk == null) throw new ArgumentNullException(nameof(customThunk));
+
+			AddCustomThunk((obj, d) =>
+			{
+				var concrete = (T)obj;
+				customThunk(concrete, d);
+			});
+		}
+
 		protected static bool Truthy(string key, IReadOnlyState state)
 		{
-			object value;
-			if (!state.TryGetValue(key, out value))
+			if (!state.TryGetValue(key, out object value))
 			{
 				return false;
 			}

@@ -101,6 +101,10 @@ namespace MR.Augmenter
 			{
 				ApplyAugment(obj, root, augment, state);
 			}
+			foreach (var customThunk in typeConfiguration.CustomThunks)
+			{
+				ApplyCustomThunk(obj, root, customThunk);
+			}
 		}
 
 		private void AugmentArray(
@@ -204,6 +208,11 @@ namespace MR.Augmenter
 			}
 
 			root.Remove(augment.Name);
+		}
+
+		private void ApplyCustomThunk(object obj, AObject root, Action<object, AObject> customThunk)
+		{
+			customThunk(obj, root);
 		}
 
 		private static List<TypeConfiguration> BuildList(TypeConfiguration typeConfiguration, TypeConfiguration ephemeral)
