@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="../../build/version.props" />
+	<Import Project="../../build/common.props" />
 
-	<PropertyGroup>
+	<PropertyGroup Label="Build">
+		<TargetFrameworks>netstandard1.2</TargetFrameworks>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Package">
 		<Description>Take control of the data your API returns.</Description>
-		<Authors>Mohammad Rahhal</Authors>
-		<TargetFramework>netstandard1.1</TargetFramework>
-		<AssemblyName>MR.Augmenter</AssemblyName>
 		<PackageId>MR.Augmenter</PackageId>
 		<PackageTags>augmenter;serialization;api;models</PackageTags>
-		<PackageProjectUrl>https://github.com/mrahhal/MR.Augmenter</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/mrahhal/MR.Augmenter/blob/master/LICENSE.txt</PackageLicenseUrl>
 	</PropertyGroup>
 
 	<ItemGroup>
