@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+Nothing yet...
+
+## [1.0.0] - 2017-12-14
 ### Changed
 - Support Asp.Net Core 2.0.
 
