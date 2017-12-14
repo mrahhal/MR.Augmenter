@@ -147,7 +147,7 @@ namespace MR.Augmenter
 
 		protected static bool Truthy(string key, IReadOnlyState state)
 		{
-			if (!state.TryGetValue(key, out object value))
+			if (!state.TryGetValue(key, out var value))
 			{
 				return false;
 			}

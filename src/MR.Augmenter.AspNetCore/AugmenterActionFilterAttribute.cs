@@ -24,7 +24,7 @@ namespace MR.Augmenter
 			{
 				if (context.Result is ViewResult)
 				{
-					return next.Invoke();
+					return next();
 				}
 
 				if (context.Result is ObjectResult objectResult)
@@ -37,7 +37,7 @@ namespace MR.Augmenter
 					return OnResultExecutionCoreAsync(context, next, jsonResult.Value, v => jsonResult.Value = v);
 				}
 
-				return next.Invoke();
+				return next();
 			}
 
 			private async Task OnResultExecutionCoreAsync(
@@ -48,7 +48,7 @@ namespace MR.Augmenter
 			{
 				var augmented = await _augmenter.AugmentAsync(value);
 				setResultObject(augmented);
-				await next.Invoke();
+				await next();
 			}
 		}
 	}

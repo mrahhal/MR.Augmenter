@@ -8,8 +8,8 @@ namespace MR.Augmenter.Internal
 	{
 		public static Func<T, object> CreateGet<T>(PropertyInfo propertyInfo)
 		{
-			Type instanceType = typeof(T);
-			Type resultType = typeof(object);
+			var instanceType = typeof(T);
+			var resultType = typeof(object);
 
 			var parameterExpression = Expression.Parameter(instanceType, "instance");
 			Expression resultExpression;
@@ -29,7 +29,7 @@ namespace MR.Augmenter.Internal
 
 			resultExpression = EnsureCastExpression(resultExpression, resultType);
 
-			LambdaExpression lambdaExpression =
+			var lambdaExpression =
 				Expression.Lambda(typeof(Func<T, object>), resultExpression, parameterExpression);
 
 			Func<T, object> compiled = (Func<T, object>)lambdaExpression.Compile();
@@ -54,7 +54,7 @@ namespace MR.Augmenter.Internal
 
 				if (allowWidening && targetTypeInfo.IsPrimitive)
 				{
-					MethodInfo toTargetTypeMethod = typeof(Convert)
+					var toTargetTypeMethod = typeof(Convert)
 						.GetRuntimeMethod("To" + targetType.Name, new[] { typeof(object) });
 
 					if (toTargetTypeMethod != null)

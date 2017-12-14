@@ -16,7 +16,7 @@ namespace MR.Augmenter.Internal
 				list.Add(type);
 			}
 
-			TypeInfo pivot = type.GetTypeInfo();
+			var pivot = type.GetTypeInfo();
 			while (true)
 			{
 				if (pivot.BaseType == null)

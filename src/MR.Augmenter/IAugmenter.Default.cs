@@ -98,11 +98,11 @@ namespace MR.Augmenter
 			}
 
 			// perf: Avoid allocations.
-			for (int i = 0; i < typeConfiguration.Augments.Count; i++)
+			for (var i = 0; i < typeConfiguration.Augments.Count; i++)
 			{
 				ApplyAugment(obj, root, typeConfiguration.Augments[i], state);
 			}
-			for (int i = 0; i < typeConfiguration.CustomThunks.Count; i++)
+			for (var i = 0; i < typeConfiguration.CustomThunks.Count; i++)
 			{
 				ApplyCustomThunk(obj, root, typeConfiguration.CustomThunks[i]);
 			}
@@ -151,7 +151,7 @@ namespace MR.Augmenter
 			}
 
 			if (!typeConfiguration.NestedConfigurations.Value.TryGetValue(
-				property.PropertyInfo, out NestedTypeConfiguration ntc))
+				property.PropertyInfo, out var ntc))
 			{
 				return null;
 			}

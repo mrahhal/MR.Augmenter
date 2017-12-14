@@ -71,7 +71,7 @@ namespace Benchmark
 				var p = scope.ServiceProvider;
 				var sw = Stopwatch.StartNew();
 
-				for (int i = 0; i < Iterations; i++)
+				for (var i = 0; i < Iterations; i++)
 				{
 					await Helper.RunAugmentAsync(p);
 				}
@@ -79,7 +79,7 @@ namespace Benchmark
 				var s1 = sw.Elapsed;
 				sw.Restart();
 
-				for (int i = 0; i < Iterations; i++)
+				for (var i = 0; i < Iterations; i++)
 				{
 					Helper.RunSerialize();
 				}
