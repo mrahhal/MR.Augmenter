@@ -14,7 +14,7 @@ namespace Benchmark
 		private IServiceProvider _provider;
 		private IAugmenter _augmenter;
 
-		[Setup]
+		[GlobalSetup]
 		public void SetupData()
 		{
 			_provider = Helper.CreateProvider();
