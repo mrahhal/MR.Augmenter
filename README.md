@@ -9,6 +9,8 @@ AppVeyor | Travis
 
 Take control of the data your API returns.
 
+[CHANGELOG](CHANGELOG.md)
+
 ## What and Why
 - We have some changes (add props, remove props) we want to apply to our models centrally (and conditionally).
 - We want this to play nice with inheritance, nesting, enumerables, ...
