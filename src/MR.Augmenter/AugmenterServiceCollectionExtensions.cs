@@ -6,6 +6,11 @@ namespace MR.Augmenter
 {
 	public static class AugmenterServiceCollectionExtensions
 	{
+		/// <summary>
+		/// Adds augmenter to services.
+		/// </summary>
+		/// <param name="services"></param>
+		/// <param name="configure">Can be null.</param>
 		public static IAugmenterBuilder AddAugmenter(
 			this IServiceCollection services,
 			Action<AugmenterConfiguration> configure)
@@ -13,7 +18,7 @@ namespace MR.Augmenter
 			services.AddScoped<IAugmenter, Augmenter>();
 
 			var configuration = new AugmenterConfiguration();
-			configure(configuration);
+			configure?.Invoke(configuration);
 			configuration.Build();
 			services.AddSingleton(configuration);
 
