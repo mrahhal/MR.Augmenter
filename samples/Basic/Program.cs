@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Basic
@@ -7,14 +7,13 @@ namespace Basic
 	{
 		public static void Main(string[] args)
 		{
-			var host = new WebHostBuilder()
-				.UseKestrel()
-				.UseContentRoot(Directory.GetCurrentDirectory())
-				.UseIISIntegration()
-				.UseStartup<Startup>()
-				.Build();
-
+			var host = BuildWebHost(args);
 			host.Run();
 		}
+
+		public static IWebHost BuildWebHost(string[] args) =>
+			WebHost.CreateDefaultBuilder(args)
+				.UseStartup<Startup>()
+				.Build();
 	}
 }
