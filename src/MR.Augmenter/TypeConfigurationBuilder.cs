@@ -52,10 +52,10 @@ namespace MR.Augmenter
 				return;
 			}
 
-			var baseTypes = ReflectionHelper.IncludeBaseTypes(type);
-			foreach (var baseType in baseTypes)
+			var allTypes = ReflectionHelper.IncludeBaseTypesAndImplementedInterface(type);
+			foreach (var implType in allTypes)
 			{
-				var tc = _all.FirstOrDefault(t => t.Type == baseType);
+				var tc = _all.FirstOrDefault(t => t.Type == implType);
 				if (tc != null)
 				{
 					context.EnsureCurrent();
@@ -63,8 +63,8 @@ namespace MR.Augmenter
 				}
 				else
 				{
-					var scoped = context.CreateScoped(null, baseType);
-					BuildOne(scoped, baseType);
+					var scoped = context.CreateScoped(null, implType);
+					BuildOne(scoped, implType);
 					if (!scoped.Empty)
 					{
 						context.EnsureCurrent();
@@ -72,7 +72,7 @@ namespace MR.Augmenter
 					}
 					else
 					{
-						context.AddBaseTypeConfiguration(CreateConfigurationWithPropertiesOnly(baseType));
+						context.AddBaseTypeConfiguration(CreateConfigurationWithPropertiesOnly(implType));
 					}
 				}
 			}

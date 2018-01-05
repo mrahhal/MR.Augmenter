@@ -37,6 +37,13 @@ namespace MR.Augmenter.Internal
 			return list;
 		}
 
+		public static List<Type> IncludeBaseTypesAndImplementedInterface(Type type, bool withSelf = false)
+		{
+			var allTypes = IncludeBaseTypes(type, withSelf);
+			allTypes.AddRange(type.GetInterfaces());
+			return allTypes;
+		}
+
 		public static bool IsPrimitive(Type type)
 		{
 			var typeInfo = type.GetTypeInfo();

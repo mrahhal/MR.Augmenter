@@ -34,6 +34,15 @@ namespace Basic.Controllers
 			return Ok(model);
 		}
 
+		[HttpGet("ia")]
+		public IActionResult GetInterfaceA()
+		{
+			// Interfaces work!
+			var model = new InterfaceAImpl { Id = 42 };
+
+			return Ok(model);
+		}
+
 		[HttpGet("anon")]
 		public IActionResult GetAnon()
 		{
