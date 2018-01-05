@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 
 namespace MR.Augmenter
 {
 	public class FakeAugmenterBase : AugmenterBase
 	{
 		public FakeAugmenterBase(
-			AugmenterConfiguration configuration,
+			IOptions<AugmenterConfiguration> configuration,
 			IServiceProvider services)
 			: base(configuration, services)
 		{

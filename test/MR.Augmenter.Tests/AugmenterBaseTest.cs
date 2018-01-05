@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace MR.Augmenter
@@ -60,7 +61,8 @@ namespace MR.Augmenter
 					return Task.FromResult(0);
 				};
 				var services = new ServiceCollection();
-				services.AddSingleton(configuration);
+				services.AddOptions();
+				services.AddSingleton(Options.Create(configuration));
 				services.AddSingleton<FakeAugmenterBase>();
 				services.AddSingleton<SomeService>();
 				var p = services.BuildServiceProvider();
@@ -83,7 +85,8 @@ namespace MR.Augmenter
 					return Task.FromResult(0);
 				};
 				var services = new ServiceCollection();
-				services.AddSingleton(configuration);
+				services.AddOptions();
+				services.AddSingleton(Options.Create(configuration));
 				services.AddSingleton<FakeAugmenterBase>();
 				services.AddSingleton<SomeService>();
 				var p = services.BuildServiceProvider();

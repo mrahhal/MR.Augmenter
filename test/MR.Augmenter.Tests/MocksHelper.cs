@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace MR.Augmenter
@@ -29,7 +30,8 @@ namespace MR.Augmenter
 		public static FakeAugmenterBase AugmenterBase(AugmenterConfiguration configuration)
 		{
 			var services = new ServiceCollection();
-			services.AddSingleton(configuration);
+			services.AddOptions();
+			services.AddSingleton(Options.Create(configuration));
 			services.AddSingleton<FakeAugmenterBase>();
 			var provider = services.BuildServiceProvider();
 			return For<FakeAugmenterBase>(provider);
@@ -38,7 +40,8 @@ namespace MR.Augmenter
 		public static Augmenter Augmenter(AugmenterConfiguration configuration)
 		{
 			var services = new ServiceCollection();
-			services.AddSingleton(configuration);
+			services.AddOptions();
+			services.AddSingleton(Options.Create(configuration));
 			services.AddSingleton<Augmenter>();
 			var provider = services.BuildServiceProvider();
 			return For<Augmenter>(provider);

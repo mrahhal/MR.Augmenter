@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using MR.Augmenter.Internal;
 
 namespace MR.Augmenter
@@ -21,17 +22,17 @@ namespace MR.Augmenter
 		private readonly TypeConfigurationBuilder _builder;
 
 		protected AugmenterBase(
-			AugmenterConfiguration configuration,
+			IOptions<AugmenterConfiguration> configuration,
 			IServiceProvider services)
 		{
-			if (!configuration.Built)
+			if (!configuration.Value.Built)
 			{
 				throw new InvalidOperationException("AugmenterConfiguration should be built first using Build().");
 			}
 
-			Configuration = configuration;
+			Configuration = configuration.Value;
 			Services = services;
-			_builder = new TypeConfigurationBuilder(configuration.TypeConfigurations);
+			_builder = new TypeConfigurationBuilder(Configuration.TypeConfigurations);
 		}
 
 		public AugmenterConfiguration Configuration { get; }

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Allow several `TypeConfiguration` impls for the same model. [#18](https://github.com/mrahhal/MR.Augmenter/issues/18)
 - A more robust collecting of TypeConfiguration implementations.
+- More robust way to configure options. [#17](https://github.com/mrahhal/MR.Augmenter/issues/17)
 
 ## [1.0.0] - 2017-12-14
 ### Changed

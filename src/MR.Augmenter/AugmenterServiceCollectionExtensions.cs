@@ -13,14 +13,18 @@ namespace MR.Augmenter
 		/// <param name="configure">Can be null.</param>
 		public static IAugmenterBuilder AddAugmenter(
 			this IServiceCollection services,
-			Action<AugmenterConfiguration> configure)
+			Action<AugmenterConfiguration> configure = null)
 		{
+			services.AddOptions();
+
 			services.AddScoped<IAugmenter, Augmenter>();
 
-			var configuration = new AugmenterConfiguration();
-			configure?.Invoke(configuration);
-			configuration.Build();
-			services.AddSingleton(configuration);
+			if (configure != null)
+			{
+				services.Configure(configure);
+			}
+
+			services.PostConfigure<AugmenterConfiguration>(configuration => configuration.Build());
 
 			return new AugmenterBuilder(services);
 		}

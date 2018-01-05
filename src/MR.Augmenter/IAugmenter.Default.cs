@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using AArray = System.Collections.Generic.List<object>;
 using AObject = System.Collections.Generic.Dictionary<string, object>;
 
@@ -15,7 +16,7 @@ namespace MR.Augmenter
 	public class Augmenter : AugmenterBase
 	{
 		public Augmenter(
-			AugmenterConfiguration configuration,
+			IOptions<AugmenterConfiguration> configuration,
 			IServiceProvider services)
 			: base(configuration, services)
 		{
