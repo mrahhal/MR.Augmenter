@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MR.Augmenter.Internal;
@@ -38,6 +39,22 @@ namespace MR.Augmenter
 
 		internal Lazy<Dictionary<PropertyInfo, NestedTypeConfiguration>> NestedConfigurations { get; } =
 			new Lazy<Dictionary<PropertyInfo, NestedTypeConfiguration>>();
+
+		public void Combine(TypeConfiguration another)
+		{
+			Augments.AddRange(another.Augments);
+			foreach (var thunk in another.CustomThunks)
+			{
+				AddCustomThunk(thunk);
+			}
+			if (another.NestedConfigurations.IsValueCreated)
+			{
+				foreach (var pair in another.NestedConfigurations.Value)
+				{
+					NestedConfigurations.Value.Add(pair.Key, pair.Value);
+				}
+			}
+		}
 	}
 
 	public class TypeConfiguration<T> : TypeConfiguration

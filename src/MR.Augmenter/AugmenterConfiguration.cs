@@ -74,20 +74,51 @@ namespace MR.Augmenter
 				var typeConfigurationTypeInfo = typeof(TypeConfiguration).GetTypeInfo();
 				var types = assembly.ExportedTypes
 					.Select(t => t.GetTypeInfo())
-					.Where(t => typeConfigurationTypeInfo.IsAssignableFrom(t))
+					.Where(t => !t.IsAbstract && typeConfigurationTypeInfo.IsAssignableFrom(t))
 					.ToList();
 
 				foreach (var type in types)
 				{
-					if (!type.BaseType.IsConstructedGenericType)
+					var baseTypeConfigurationType = FindGenericBaseTypeConfigurationType(type);
+					if (baseTypeConfigurationType == null)
 					{
 						throw new InvalidOperationException("You should extend from the generic version of TypeConfiguration.");
 					}
 
 					var instance = (TypeConfiguration)Activator.CreateInstance(type.AsType());
-					TypeConfigurations.Add(instance);
+					var elementType = GetElementTypeFromConcreteTypeConfiguration(baseTypeConfigurationType);
+					var existing = TypeConfigurations.FirstOrDefault(tc => tc.Type == elementType);
+					if (existing != null)
+					{
+						existing.Combine(instance);
+					}
+					else
+					{
+						TypeConfigurations.Add(instance);
+					}
 				}
 			}
+		}
+
+		private Type GetElementTypeFromConcreteTypeConfiguration(Type type)
+		{
+			return type.GetGenericArguments()[0];
+		}
+
+		private Type FindGenericBaseTypeConfigurationType(Type type)
+		{
+			// Find TypeConfiguration<> in the base hierarchy.
+			var baseType = type.BaseType;
+			while (!baseType.IsConstructedGenericType || baseType.GetGenericTypeDefinition() != typeof(TypeConfiguration<>))
+			{
+				baseType = baseType.BaseType;
+				if (baseType == null)
+				{
+					return null;
+				}
+			}
+
+			return baseType;
 		}
 
 		private void BuildCore()
