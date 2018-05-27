@@ -101,10 +101,9 @@ namespace MR.Augmenter
 				else
 				{
 					var nestedTypeConfiguration = _all.FirstOrDefault(c => c.Type == tiw.Type);
-					NestedTypeConfiguration nested;
 					if (tiw.IsWrapper || (context.Current != null &&
 						context.Current.NestedConfigurations.IsValueCreated &&
-						context.Current.NestedConfigurations.Value.TryGetValue(p, out nested)))
+						context.Current.NestedConfigurations.Value.TryGetValue(p, out _)))
 					{
 						nestedTypeConfiguration = nestedTypeConfiguration ?? new TypeConfiguration(type);
 					}
