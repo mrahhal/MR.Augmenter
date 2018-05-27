@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 Nothing yet...
 
+## [1.1.1] - 2018-05-27
+### Fixed
+- "Remove" not working when types are configured through an interface. [#20](https://github.com/mrahhal/MR.Augmenter/issues/20)
+
 ## [1.1.0] - 2018-01-05
 ### Changed
 - Allow several `TypeConfiguration` impls for the same model. [#18](https://github.com/mrahhal/MR.Augmenter/issues/18)
@@ -18,6 +22,7 @@ Nothing yet...
 ### Changed
 - Support Asp.Net Core 2.0.
 
-[Unreleased]: https://github.com/mrahhal/MR.AspNetCore.Jobs/compare/1.1.0...HEAD
+[Unreleased]: https://github.com/mrahhal/MR.AspNetCore.Jobs/compare/1.1.1...HEAD
+[1.1.0]: https://github.com/mrahhal/MR.AspNetCore.Jobs/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/mrahhal/MR.AspNetCore.Jobs/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/mrahhal/MR.AspNetCore.Jobs/compare/0.3.1...1.0.0
