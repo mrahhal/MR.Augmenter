@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 
 namespace MR.Augmenter
 {
@@ -29,6 +30,17 @@ namespace MR.Augmenter
 			{
 				c.Add("Bar2", (x, _) => $"{x.Id}-{x.Foo}");
 				c.Remove(nameof(TestModel1.Some));
+			});
+			configuration.Configure<ITestModelD>(c =>
+			{
+				c.Add("Name", (x, state) =>
+				{
+					var names = x.GetType().GetProperty("Names").GetValue(x) as IList;
+					var name = names.Count > 0 ? names[0] : null;
+					return name;
+				});
+
+				c.Remove("Names");
 			});
 
 			if (build)

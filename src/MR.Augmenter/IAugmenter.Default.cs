@@ -27,15 +27,33 @@ namespace MR.Augmenter
 			var obj = context.Object;
 			var root = new AObject();
 
-			foreach (var typeConfiguration in BuildList(context.TypeConfiguration, context.EphemeralTypeConfiguration))
-			{
-				AugmentObject(obj, typeConfiguration, root, context.State);
-			}
+			var typeConfigurations = BuildList(context.TypeConfiguration, context.EphemeralTypeConfiguration);
+			CopyAndAugmentObject(obj, typeConfigurations, root, context.State, null, null);
 
 			return root;
 		}
 
-		private void AugmentObject(object obj, TypeConfiguration typeConfiguration, AObject root, IReadOnlyState state)
+		private void CopyAndAugmentObject(object obj, List<TypeConfiguration> typeConfigurations, AObject root, IReadOnlyState state, NestedTypeConfiguration ntc, object parentForNested)
+		{
+			foreach (var typeConfiguration in typeConfigurations)
+			{
+				if (ntc != null)
+				{
+					state = CreateNestedState(parentForNested, ntc, state);
+				}
+				CopyObject(obj, typeConfiguration, root, state);
+			}
+			foreach (var typeConfiguration in typeConfigurations)
+			{
+				if (ntc != null)
+				{
+					state = CreateNestedState(parentForNested, ntc, state);
+				}
+				AugmentObject(obj, typeConfiguration, root, state);
+			}
+		}
+
+		private void CopyObject(object obj, TypeConfiguration typeConfiguration, AObject root, IReadOnlyState state)
 		{
 			foreach (var property in typeConfiguration.Properties)
 			{
@@ -81,11 +99,8 @@ namespace MR.Augmenter
 						if (done) continue;
 
 						var nestedDict = new AObject();
-						foreach (var tc in BuildList(property.TypeConfiguration, ntc?.TypeConfiguration))
-						{
-							var nestedState = CreateNestedState(obj, ntc, state);
-							AugmentObject(nestedObject, tc, nestedDict, nestedState);
-						}
+						var tcs = BuildList(property.TypeConfiguration, ntc?.TypeConfiguration);
+						CopyAndAugmentObject(nestedObject, tcs, nestedDict, state, ntc, obj);
 						root[property.PropertyInfo.Name] = nestedDict;
 					}
 					else
@@ -97,7 +112,10 @@ namespace MR.Augmenter
 					}
 				}
 			}
+		}
 
+		private void AugmentObject(object obj, TypeConfiguration typeConfiguration, AObject root, IReadOnlyState state)
+		{
 			foreach (var augment in typeConfiguration.Augments)
 			{
 				ApplyAugment(obj, root, augment, state);
@@ -115,7 +133,7 @@ namespace MR.Augmenter
 			APropertyInfo property,
 			AArray nestedList,
 			IReadOnlyState state,
-			List<TypeConfiguration> typeConfigurations)
+			List<TypeConfiguration> tcs)
 		{
 			var asEnumerable = arr as IEnumerable;
 			Debug.Assert(asEnumerable != null, "asEnumerable != null");
@@ -131,13 +149,7 @@ namespace MR.Augmenter
 				}
 
 				var dict = new AObject();
-				// ReSharper disable once ForCanBeConvertedToForeach
-				for (var i = 0; i < typeConfigurations.Count; i++)
-				{
-					var tc = typeConfigurations[i];
-					var nestedState = CreateNestedState(obj, ntc, state);
-					AugmentObject(actual, tc, dict, nestedState);
-				}
+				CopyAndAugmentObject(actual, tcs, dict, state, ntc, obj);
 				nestedList.Add(dict);
 			}
 		}

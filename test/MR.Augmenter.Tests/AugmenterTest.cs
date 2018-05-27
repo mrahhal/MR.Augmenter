@@ -154,6 +154,19 @@ namespace MR.Augmenter
 			}
 		}
 
+		public class ThroughInterfaceTest : AugmenterTest
+		{
+			[Fact]
+			public async Task ThroughInterface()
+			{
+				var model = new TestModelD();
+
+				var result = await _fixture.AugmentAsync(model) as AObject;
+
+				result.Should().NotContainKey("Names");
+			}
+		}
+
 		public class NestedTest : AugmenterTest
 		{
 			public NestedTest()

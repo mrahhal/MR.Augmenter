@@ -34,6 +34,18 @@ namespace MR.Augmenter
 		public string Bar { get; set; } = "bar";
 	}
 
+	public interface ITestModelD
+	{
+		List<string> Names { get; set; }
+	}
+
+	public class TestModelD : ITestModelD
+	{
+		public int Id { get; set; }
+
+		public List<string> Names { get; set; } = new List<string>();
+	}
+
 	public class TestModelForWrapping
 	{
 		public int Id { get; set; }
