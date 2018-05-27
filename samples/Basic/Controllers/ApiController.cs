@@ -34,6 +34,15 @@ namespace Basic.Controllers
 			return Ok(model);
 		}
 
+		[HttpGet("d")]
+		public IActionResult GetD()
+		{
+			var model = new ModelD();
+			model.Names.Add("Some1");
+
+			return Ok(model);
+		}
+
 		[HttpGet("ia")]
 		public IActionResult GetInterfaceA()
 		{
