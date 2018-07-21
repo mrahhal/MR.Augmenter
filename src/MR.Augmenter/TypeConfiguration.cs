@@ -11,8 +11,8 @@ namespace MR.Augmenter
 	[DebuggerDisplay("Augments: {Augments.Count}, Base: {BaseTypeConfigurations.Count}, Properties: {Properties.Count}")]
 	public class TypeConfiguration
 	{
-		private static readonly List<Action<object, Dictionary<string, object>>> EmptyThunkList =
-			new List<Action<object, Dictionary<string, object>>>();
+		private static readonly List<Action<object, Dictionary<string, object>, IReadOnlyState>> EmptyThunkList =
+			new List<Action<object, Dictionary<string, object>, IReadOnlyState>>();
 
 		public TypeConfiguration(Type type)
 		{
@@ -25,11 +25,11 @@ namespace MR.Augmenter
 
 		internal List<Augment> Augments { get; } = new List<Augment>();
 
-		internal List<Action<object, Dictionary<string, object>>> CustomThunks = EmptyThunkList;
+		internal List<Action<object, Dictionary<string, object>, IReadOnlyState>> CustomThunks = EmptyThunkList;
 
-		internal void AddCustomThunk(Action<object, Dictionary<string, object>> thunk)
+		internal void AddCustomThunk(Action<object, Dictionary<string, object>, IReadOnlyState> thunk)
 		{
-			if (CustomThunks == EmptyThunkList) CustomThunks = new List<Action<object, Dictionary<string, object>>>();
+			if (CustomThunks == EmptyThunkList) CustomThunks = new List<Action<object, Dictionary<string, object>, IReadOnlyState>>();
 			CustomThunks.Add(thunk);
 		}
 
@@ -155,10 +155,21 @@ namespace MR.Augmenter
 		{
 			if (customThunk == null) throw new ArgumentNullException(nameof(customThunk));
 
-			AddCustomThunk((obj, d) =>
+			AddCustomThunk((obj, d, state) =>
 			{
 				var concrete = (T)obj;
 				customThunk(concrete, d);
+			});
+		}
+
+		public void Custom(Action<T, Dictionary<string, object>, IReadOnlyState> customThunk)
+		{
+			if (customThunk == null) throw new ArgumentNullException(nameof(customThunk));
+
+			AddCustomThunk((obj, d, state) =>
+			{
+				var concrete = (T)obj;
+				customThunk(concrete, d, state);
 			});
 		}
 

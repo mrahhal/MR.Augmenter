@@ -122,7 +122,7 @@ namespace MR.Augmenter
 			}
 			foreach (var v in typeConfiguration.CustomThunks)
 			{
-				ApplyCustomThunk(obj, root, v);
+				ApplyCustomThunk(obj, root, state, v);
 			}
 		}
 
@@ -223,9 +223,9 @@ namespace MR.Augmenter
 			root.Remove(augment.Name);
 		}
 
-		private void ApplyCustomThunk(object obj, AObject root, Action<object, AObject> customThunk)
+		private void ApplyCustomThunk(object obj, AObject root, IReadOnlyState state, Action<object, AObject, IReadOnlyState> customThunk)
 		{
-			customThunk(obj, root);
+			customThunk(obj, root, state);
 		}
 
 		private static List<TypeConfiguration> BuildList(TypeConfiguration typeConfiguration, TypeConfiguration ephemeral)
